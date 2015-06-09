@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  >
+
+    <PreferenceCategory
+        android:title="@string/pref_gps_title"
+        android:key="pref_key_storage_settings">
+        <CheckBoxPreference
+            android:key="pref_key_mod"
+            android:summary="@string/pref_summary_mod"
+            android:title="@string/pref_title_mod"
+            android:defaultValue="false"
+            />
+        <EditTextPreference
+            android:key="pref_key_gps_count_sat"
+            android:summary="@string/summary_count_gps"
+            android:title="@string/title_count_gps"
+            android:inputType="number"
+            android:defaultValue="6"/>
+        <Preference android:key="pref_key_gps_system"
+            android:title="@string/refer_gps_settings">
+        </Preference>
+
+        </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_wifi_title"
+        android:key="pref_key_storage_settings">
+        <CheckBoxPreference
+            android:key="pref_key_scan_closeOn"
+            android:summary="@string/pref_summary_closeOn"
+            android:title="@string/pref_title_closeOn"
+            android:defaultValue="false"/>
+        <EditTextPreference
+            android:key="pref_key_wifi_min_signal"
+            android:summary="@string/summary_wifi_min_signal"
+            android:title="@string/title_wifi_min_signal"
+            android:inputType="number"
+            android:defaultValue="90"
+            />
+        <EditTextPreference
+            android:key="pref_key_wifi_auto_min_signal"
+            android:summary="@string/summary_wifi_auto_min_signal"
+            android:title="@string/title_wifi_auto_min_signal"
+            android:inputType="number"
+            android:defaultValue="50"
+            />
+
+
+    </PreferenceCategory>
+</PreferenceScreen >
+

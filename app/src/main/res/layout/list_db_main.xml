@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/listPreferredItemHeight"
+        android:background="#240088ff"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/headerLevel"
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:gravity="center"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:maxLines="1"
+            android:textColor="#ff007aff"
+            android:text="@string/headerLevel"
+            android:ellipsize="end"
+            android:layout_weight="0.5" />
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="2.20"
+            android:textColor="#ff007aff"
+            android:gravity="center"
+            >
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/headerSSID"
+                android:gravity="center_horizontal"
+                android:paddingLeft="4dp"
+                android:textColor="#d1000245"
+                android:paddingRight="4dp"
+                android:text="@string/headerSSID"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/headerBSSID"
+                android:gravity="center_horizontal"
+                android:paddingLeft="4dp"
+                android:textColor="#d1000245"
+                android:paddingRight="4dp"
+                android:text="@string/headerBSSID"/>
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/headerEncrypt"
+            android:paddingLeft="4dp"
+            android:textColor="#ff007aff"
+            android:paddingRight="4dp"
+            android:text="@string/headerEncrypt"
+            android:gravity="center"
+            android:layout_weight="0.20" />
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:id="@+id/linLayout_progress"
+     >
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@android:style/Widget.ProgressBar.Small.Inverse"
+        android:layout_marginTop="10dp"
+        android:id="@+id/pbLoading"
+       />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:id="@+id/tvLoading"
+        android:text="@string/loading" />
+</LinearLayout>
+    <ListView
+        android:id="@+id/list_view_db"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+    </ListView>
+
+</LinearLayout>
+

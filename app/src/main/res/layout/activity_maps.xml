@@ -1,0 +1,68 @@
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    >
+
+
+
+
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+        android:layout_height="match_parent" android:id="@+id/map" tools:context=".MapsActivity"
+        android:name="com.google.android.gms.maps.SupportMapFragment" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_find_me"
+        android:id="@+id/bCurrentPos"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textOff="@string/switch_search_mod_off"
+        android:textOn="@string/switch_search_mod_on"
+        android:id="@+id/switch_search_mod"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/relativeLayout"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="N"
+            android:id="@+id/tvStatCount"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+
+            />
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_satellite"
+        android:id="@+id/imageView"
+        android:layout_alignWithParentIfMissing="false"
+        android:layout_alignBottom="@+id/relativeLayout"
+        android:layout_toRightOf="@+id/relativeLayout"
+        android:layout_toEndOf="@+id/relativeLayout" />
+
+
+</RelativeLayout>

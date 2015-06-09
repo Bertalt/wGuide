@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">JeMapper</string>
+    <string name="title_activity_maps">JeMapper</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_wifiList">WiFi list</string>
+    <string name="buttonScan">Scan wireless</string>
+    <string name="title_activity_wifilist">Scanner</string>
+    <string name="button_find_me">Find Me</string>
+
+    <string name="switch_search_mod">Search WiFi</string>
+    <string name="switch_search_mod_on">Search MOD</string>
+    <string name="switch_search_mod_off">User MOD</string>
+    <string name="menu_remove">Remove</string>
+
+    <string name="content_open_popup">Open Popup Menu</string>
+
+    <string name="alert_dialog_ok"> I know what i\'m doing </string>
+    <string name="alert_dialog_cancel">Thx, I\'ll try later</string>
+    <string name="alert_dialog_two_buttons_title">Recommendation</string>
+    <string name="menu_add_in_db">Add in DB</string>
+    <string name="recomend_part_1">We recommend that you do not add to the database a new record. You have connection with </string>
+    <string name="recomend_part_2">satellites. This Is not enough for a best accuracy.</string>
+
+    <string name="title_activity_listFromDb">Database</string>
+    <string name="delete_record">Delete record</string>
+    <string name="add_record">Add record</string>
+    <string name="open_record">Find on map</string>
+    <string name="action_list_from_db">Open database</string>
+    <string name="list_empty">EMPTY</string>
+    <string name="loading">Loading...</string>
+    <string name="header_search">Search for network with a signal greater than </string>
+
+    <string name="context_menu_adding"> Add this access point</string>
+
+    <string name="pref_gps_title"> GPS</string>
+    <string name="pref_wifi_title"> WiFi</string>
+    <string name="pref_summary_mod"> In this mode, the program performs automatic scanning and gets more accurate location coordinates.</string>
+    <string name="pref_title_mod">Search mode</string>
+    <string name="refer_gps_settings">GPS system settings</string>
+    <string name="pref_summary_closeOn"> Scan encrypted access points</string>
+    <string name="pref_title_closeOn">Scan all</string>
+
+    <string name="pref_count_sat_title"> Amount of satellites </string>
+    <string name="pref_count_sat_dialog_title"> Choose amount of satellites</string>
+    <string name ="pref_syncConnectionTypes_default">6</string>
+
+    <!-- headers -->
+    <string name="headerLevel"> Signal</string>
+    <string name="headerSSID">SSID</string>
+    <string name="headerBSSID">BSSID</string>
+    <string name="headerEncrypt">Encryption </string>
+
+    <!-- Preferences GPS-->
+    <string name="title_count_gps"> Amount of satellites</string>
+    <string name="summary_count_gps"> For safe working with coordinates</string>
+
+    <!-- Prefer WiFi -->
+    <string name="title_wifi_min_signal"> Minimum signal to search</string>
+    <string name="summary_wifi_min_signal"> The service of scanning will ignore signal lower than this. Attention! You should  input unsigned value.</string>
+    <string name="title_wifi_auto_min_signal"> Minimum signal to automatic adding</string>
+    <string name="summary_wifi_auto_min_signal"> The service of automatic adding in database will ignore signal lower than this. Attention! You should  input unsigned value.</string>
+</resources>
