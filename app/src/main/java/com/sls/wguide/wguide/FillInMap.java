@@ -38,7 +38,6 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
     @Override
     public void run() {
         final Handler handler = new Handler(Looper.getMainLooper());
-        db.open();
         db.getAllData();
         int count = 0;
         alAccessPoints = db.getmApList();
@@ -62,7 +61,7 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
             });
             count++;
         }
-        db.close();
+
         Log.d(TAG, "Was load " + count + " WiFi markers");
         //            Toast.makeText(getApplicationContext(), "Was load "+ count +" WiFi markers", Toast.LENGTH_SHORT).show();
     }
@@ -83,7 +82,6 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
         AccessPoint tmp = getApByMarkerId(marker.getId());
         if (tmp != null)
         {
-            db.open();
            if (db.insertRec(tmp.getBSSID(),
                     tmp.getSSID(),
                     tmp.getLevel(),
@@ -93,7 +91,6 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                     tmp.getWho_add(),
                     new Date().getTime()))
                Toast.makeText(context, tmp.getSSID()+ " location changed ", Toast.LENGTH_SHORT).show();
-        db.close();
 
         }
 

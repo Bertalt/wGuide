@@ -5,9 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -25,6 +27,7 @@ public class WiFiviser extends Service {
 
     private String TAG = "NewScan";
     private ExecutorService es;
+    private ExecutorService es2;
     private BroadcastReceiver br;
     private BroadcastReceiver br_sat;
     public static final String PARAM_SAT  = "satellites";
@@ -36,13 +39,46 @@ public class WiFiviser extends Service {
     private IntentFilter intFilt;
     private IntentFilter intFilt2;
     private static LatLng mCurLoc;
+    private  DB db;
+    private SharedPreferences sharedPref;
     @Override
     public void onCreate()
     {
 
         super.onCreate();
-        es = Executors.newFixedThreadPool(2);
+        es = Executors.newFixedThreadPool(1);
+        es2 = Executors.newFixedThreadPool(1);
+        db = new DB(getApplicationContext());
 
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        br = new BroadcastReceiver() {
+            // действия при получении сообщений
+            public void onReceive(Context context, Intent intent) {
+
+                double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
+                double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
+                Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
+                mCurLoc = new LatLng(mLatitude, mLongitude);
+            }
+        };
+        // создаем объект для создания и управления версиями БД
+        // создаем фильтр для BroadcastReceiver
+        intFilt = new IntentFilter(BROADCAST_ACTION);
+
+        br_sat = new BroadcastReceiver() {
+            // действия при получении сообщений
+            public void onReceive(Context context, Intent intent) {
+
+                mSatCount = intent.getIntExtra(PARAM_SAT, 0);
+
+                Log.d(TAG, "onReceive: satellites =  " + mSatCount);
+            }
+        };
+        // создаем фильтр для BroadcastReceiver
+        intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
+
+        registerReceiver(br_sat, intFilt2);
+        registerReceiver(br, intFilt);
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -55,9 +91,8 @@ public class WiFiviser extends Service {
         scanService mScanService = new scanService();
         broadcastListener mBroadcastListener = new broadcastListener();
 
-    es.execute(mScanService);
-    es.execute(mBroadcastListener);
-
+        es.execute(mScanService);
+      //  es2.execute(mBroadcastListener);
         return super.onStartCommand(intent,flags,startId);
     }
 
@@ -72,6 +107,10 @@ public class WiFiviser extends Service {
         {
             NPE.printStackTrace();
         }
+        catch(RuntimeException RE)
+        {
+            super.onDestroy();
+        }
         Log.d(TAG, "scanService onDestroy");
     }
     class scanService implements Runnable
@@ -79,20 +118,23 @@ public class WiFiviser extends Service {
         @Override
         public void run() {
 
+            myUtil util = new myUtil();
+            db.getAllData();
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 if (wifiManager.isWifiEnabled()) {
 
                     List<ScanResult> scanResults = wifiManager.getScanResults();
                     if (scanResults != null) {
                         for (ScanResult scan : scanResults) {
-                            Log.i(TAG,
-                                    "\n SSID: " + scan.SSID     //string
-                                            + "\n BSSID: " + scan.BSSID   //string
-                                            + "\n level: " + scan.level  //int
-                                            //  + "\n Lat: " + mCurLoc.latitude//double
-                                            //  + "\n Lon: " + mCurLoc.longitude//double
-                                            + "\n Security: " + new myUtil().SecurTypeWiFi(scan.capabilities)//string
-                                            + "\n time: " + (new Date().getTime()));//long
+
+                            if (scan.level< -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")))
+                                continue;
+                            // игнорирует точку доступа, если уровень сигнала ниже, чем указан в настройках (для всех)
+                            if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
+                                if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
+                                    continue;
+                            //игнорирует закрытые точки доступа, если в настройках отключен "Scan all"
+
                             Intent intent = new Intent(WifiListActivity.BROADCAST_ACTION_WF);
                             intent.putExtra(WifiListActivity.PARAM_BSSID, scan.BSSID);
                             intent.putExtra(WifiListActivity.PARAM_SSID, scan.SSID);
@@ -101,18 +143,47 @@ public class WiFiviser extends Service {
                             intent.putExtra(WifiListActivity.PARAM_COUNT, scanResults.size());
                             sendBroadcast(intent);
 
+                            if (mSatCount < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
+                                continue;
+                            //авт. часть игнорирует точку доступа, если доступно недостаточно спутников
+
+                          //  if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open")&& )
+                           while (mCurLoc == null);
+
+                            {
+                                if (!db.apFindBssid(scan.BSSID))
+                                {
+
+                                    db.insertRec( scan.BSSID,
+                                            scan.SSID,
+                                            scan.level,
+                                            mCurLoc.latitude,
+                                            mCurLoc.longitude,
+                                            util.SecurTypeWiFi(scan.capabilities),
+                                            "S",
+                                            new Date().getTime());
+                                }
+                                else
+                                {
+                                    if (db.getByBssid(scan.BSSID).getLevel() < scan.level)
+                                        db.insertRec( scan.BSSID,
+                                                scan.SSID,
+                                                scan.level,
+                                                mCurLoc.latitude,
+                                                mCurLoc.longitude,
+                                                util.SecurTypeWiFi(scan.capabilities),
+                                                "S",
+                                                new Date().getTime());
+                                }
+                            }
+
+
 
                         }
                     }
                 }
                 else
                 Log.d(TAG,"WiFi Disable") ;
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            //}// end of while
 
         stopSelf();
         }
@@ -121,36 +192,10 @@ public class WiFiviser extends Service {
 
     class broadcastListener implements Runnable {
         @Override
-        public void run()
-        {
-            br = new BroadcastReceiver() {
-                // действия при получении сообщений
-                public void onReceive(Context context, Intent intent) {
+        public void run() {
 
-                    double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
-                    double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
-                    Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
-                    mCurLoc = new LatLng(mLatitude, mLongitude);
-                }
-            };
-            // создаем объект для создания и управления версиями БД
-            // создаем фильтр для BroadcastReceiver
-            intFilt = new IntentFilter(BROADCAST_ACTION);
 
-            br_sat = new BroadcastReceiver() {
-                // действия при получении сообщений
-                public void onReceive(Context context, Intent intent) {
 
-                    mSatCount = intent.getIntExtra(PARAM_SAT, 0);
-
-                    Log.d(TAG, "onReceive: satellites =  " + mSatCount);
-                }
-            };
-            // создаем фильтр для BroadcastReceiver
-            intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
-
-            registerReceiver(br_sat, intFilt2);
-            registerReceiver(br, intFilt);
 
         }
     }

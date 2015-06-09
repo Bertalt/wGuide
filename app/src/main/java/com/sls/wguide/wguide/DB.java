@@ -74,7 +74,7 @@ public class DB {
 
     // получить все данные из таблицы DB_TABLE
     public Cursor getAllData() {
-
+    open();
             mApList = new ArrayList<AccessPoint>();
             Cursor c  = mDB.query(TABLE_NAME, null, null, null, null, null, null);
 
@@ -115,7 +115,7 @@ public class DB {
                 Log.d(TAG, "0 rows");
 
             Log.d(TAG, "red " + mApList.size() + "AP object(s)");
-
+    close();
         return c;
     }
 
@@ -166,15 +166,18 @@ public class DB {
     {
         for (int i =0; i < mApList.size(); i++ )
         {
-            Log.d(TAG, mApList.get(i).getBSSID());
             if (mApList.get(i).getBSSID().equalsIgnoreCase(bssid))
+            {
+                Log.d(TAG, mApList.get(i).getBSSID());
                 return mApList.get(i);
+            }
+
         }
         return null;
     }
 
     public boolean insertRec (String bssid, String ssid, int level, double lat, double lon, String encrypt, String who_add, long time) {
-
+    open();
  try {
      ContentValues cv = new ContentValues();
      cv.put(BSSID, bssid);
@@ -187,8 +190,10 @@ public class DB {
      cv.put(TIME, time);
 
      if (apFindBssid(bssid)) {
-         Toast.makeText(mCtx, ssid + "'s data was updated", Toast.LENGTH_SHORT).show();
-         return mDB.update(TABLE_NAME, cv, BSSID + "=?", new String[]{bssid + ""}) > 0;
+         Log.d(TAG, ssid + "'s data was updated");
+         boolean isUpdate = mDB.update(TABLE_NAME, cv, BSSID + "=?", new String[]{bssid + ""}) > 0;
+         close();
+         return isUpdate;
      }
 
      AccessPoint mAp = new AccessPoint();
@@ -205,9 +210,9 @@ public class DB {
      //добавляем объект в список объектов
 
      mApList.add(mAp);
-     Toast.makeText(mCtx, ssid + " was added", Toast.LENGTH_SHORT).show();
+     Log.d(TAG, ssid + " was added");
      mDB.insert(TABLE_NAME, null, cv);
-
+close();
      return true;
  }
  catch (NullPointerException NPE)
@@ -231,7 +236,7 @@ public class DB {
         }catch (NullPointerException ex)
         {
             ex.printStackTrace();
-            Log.d(TAG, "Wait... I try fix it");
+            Log.e(TAG, "Wait... I try fix it");
             getAllData();
             return apFindBssid(bssid);
         }
@@ -241,7 +246,9 @@ public class DB {
 
     // удалить запись из DB_TABLE
     public void delRec(long id) {
+        open();
         mDB.delete(TABLE_NAME, ID + " = " + id, null);
+        close();
     }
 
     // класс по созданию и управлению БД

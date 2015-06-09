@@ -13,6 +13,7 @@ import android.location.LocationManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -35,6 +36,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 
 
@@ -53,10 +56,13 @@ public class MapsActivity extends ActionBarActivity
              private LatLng mCurLoc;
              private LocationManager lm;
              private  GpsStatusListener GSL;
-             private Handler mHandler;
+             private Handler handler;
              private Intent mIntent;
              private Double mLat;
              private Double mLon;
+             private boolean mServiceRunState = false;
+             private Thread mServiceWithTimer;
+             Timer myTimer; // Создаем таймер
     private Button bCurrentPos;
     private TextView tvStatCount;
          //    private boolean mScannerActiveted = false;
@@ -69,6 +75,8 @@ public class MapsActivity extends ActionBarActivity
 
         setUpMapIfNeeded();
 
+        myTimer = new Timer();
+        mServiceWithTimer = new Thread(new RunServiceWithTimer());
 
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
@@ -79,9 +87,8 @@ public class MapsActivity extends ActionBarActivity
 
         GSL =  new GpsStatusListener(tvStatCount);
 
-        mLocationAccuracy = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false);
+
         startService(new Intent(this, ServiceForLocation.class).putExtra("Accuracy", true));
-        startService(new Intent(this, WiFiviser.class));
 
 
         mSwitchMod.setOnClickListener(new View.OnClickListener() {
@@ -124,6 +131,22 @@ public class MapsActivity extends ActionBarActivity
 
             }
         };
+/*
+            ////// Регистрация слушателя доступных спутников
+ */
+        handler = new Handler(Looper.getMainLooper());
+        lm.addGpsStatusListener(GSL);
+    /*
+     *
+     */
+    /*
+            ////// Переодическое выполнение сервиса сканирования wireless
+*/
+
+/*
+     *
+     */
+
 
         // создаем фильтр для BroadcastReceiver
         IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
@@ -145,7 +168,8 @@ public class MapsActivity extends ActionBarActivity
         super.onResume();
         Log.d("LifeCycle", "onResume()");
         setUpMapIfNeeded();
-
+        mLocationAccuracy = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false);
+        mSwitchMod.setChecked(mLocationAccuracy);
         mMap.clear();
         new FillInMap(this, mMap).start();//наполнение карты маркерами wifi точек
 
@@ -167,6 +191,11 @@ public class MapsActivity extends ActionBarActivity
     protected void onStart() {
         super.onStart();
         Log.d("LifeCycle", "onStart()");
+
+            if (!mServiceRunState)
+            mServiceWithTimer.start();
+
+
     }
 
     @Override
@@ -324,37 +353,42 @@ public class MapsActivity extends ActionBarActivity
 
                  @Override
                  public void onGpsStatusChanged(int event) {
+                     handler.post(new Runnable() {
+                         public void run() {
 
                              int satellites = 0;
                              int satellitesInFix = 0;
                              int timetofix = lm.getGpsStatus(null).getTimeToFirstFix();
-                             Log.i(TAG, "Time to first fix = "+String.valueOf(timetofix)); //время на подключение к достат. кол-ву спутников
+                             Log.i(TAG, "Time to first fix = " + String.valueOf(timetofix)); //время на подключение к достат. кол-ву спутников
 
                              for (GpsSatellite sat : lm.getGpsStatus(null).getSatellites()) {
-                                 if(sat.usedInFix()) {
+                                 if (sat.usedInFix()) {
                                      satellitesInFix++;     //подсчет кол-ва спутников, которые учавствуют в
                                  }
                                  satellites++;
                              }
-                     Log.i(TAG, String.valueOf(satellites) + " Used In Last Fix (" + satellitesInFix + ")");
+                             Log.i(TAG, String.valueOf(satellites) + " Used In Last Fix (" + satellitesInFix + ")");
 
                              if (satellitesInFix < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
                                  mTvStatCount.setTextColor(Color.RED);
                              else
                                  mTvStatCount.setTextColor(Color.GREEN);
 
-                             mTvStatCount.setText(""+ satellitesInFix);
+                             mTvStatCount.setText("" + satellitesInFix);
 
                              Intent intent = new Intent(WifiListActivity.BROADCAST_ACTION);
-                             intent.putExtra(WifiListActivity.PARAM_SAT, satellitesInFix );
+                             intent.putExtra(WifiListActivity.PARAM_SAT, satellitesInFix);
 
                              sendBroadcast(intent);
-                 }
+                         }
+                     });
 
-             }
+                          }
+
+                      }
 
 
-             boolean doubleBackToExitPressedOnce = false;
+                     boolean doubleBackToExitPressedOnce = false;
              @Override
              public void onBackPressed() {
                  if (doubleBackToExitPressedOnce) {
@@ -376,5 +410,22 @@ public class MapsActivity extends ActionBarActivity
                      }
                  }, 3000);
              }
+
+             public class RunServiceWithTimer implements Runnable{
+
+                 @Override
+                 public void run() {
+                     {
+                         mServiceRunState = true;
+                         myTimer.schedule(new TimerTask() {
+                             @Override
+                             public void run() {
+                                 startService(new Intent(getApplicationContext(), WiFiviser.class));
+                             }
+                         }, 0, 5 * 1000);
+                     }
+                     }
+                 }
+
 
          }

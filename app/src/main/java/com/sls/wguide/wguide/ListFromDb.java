@@ -116,8 +116,10 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
             {
                 Intent intent = new Intent(this, MapsActivity.class).putExtra("lat",tmp.getLat())
                         .putExtra("lon",tmp.getLon())
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+
             }
             else
                 Toast.makeText(this, "Cannot find selected acceess point", Toast.LENGTH_SHORT).show();
@@ -129,7 +131,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     protected void onDestroy() {
         super.onDestroy();
         // закрываем подключение при выходе
-        db.close();
+
     }
 
     @Override
