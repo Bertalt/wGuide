@@ -97,19 +97,6 @@ public class MapsActivity extends ActionBarActivity
 
                 mLocationAccuracy = !mLocationAccuracy;
                 mSwitchMod.setChecked(mLocationAccuracy);
-                //createLocationRequest();
-/*
-                if (mLocationAccuracy)
-                {
-                    startService(new Intent(getApplicationContext(), WiFiScanner00.class));
-                }
-
-                else
-                {
-                    stopService(new Intent(getApplicationContext(), WiFiScanner00.class));
-                   lm.removeGpsStatusListener(GSL);
-                }
-*/
                 Log.d("Switch", "Search mod " + mLocationAccuracy);
 
             }
@@ -142,12 +129,6 @@ public class MapsActivity extends ActionBarActivity
     /*
             ////// Переодическое выполнение сервиса сканирования wireless
 */
-
-/*
-     *
-     */
-
-
         // создаем фильтр для BroadcastReceiver
         IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
         // регистрируем (включаем) BroadcastReceiver

@@ -31,7 +31,7 @@ public class ServiceForLocation extends Service
          {
     String LOG_TAG = "myServiceGPS";
     ExecutorService es;
-             iLocationListener LocLis;
+    iLocationListener LocLis;
     LocationManager lm;
 
     private GoogleApiClient mGoogleApiClient;   //obj for GPsA
@@ -129,8 +129,7 @@ public class ServiceForLocation extends Service
         if (mLocationAccuracy)
         {
             mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(5000);         //for update
-            // mLocationRequest.setFastestInterval(2000);
+            mLocationRequest.setInterval(5000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);// use GPS
 
 
@@ -139,7 +138,6 @@ public class ServiceForLocation extends Service
         {
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(10000);
-            // mLocationRequest.setFastestInterval(2000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);// use NETWORK
 
         }
@@ -174,51 +172,20 @@ public class ServiceForLocation extends Service
         return null;
     }
 
-    /*
-                 @Override
-                 public void onGpsStatusChanged(int event) {
-                     int satellites = 0;
-                     int satellitesInFix = 0;
-                     int timetofix = lm.getGpsStatus(null).getTimeToFirstFix();
-                     Log.i(LOG_TAG, "Time to first fix = "+String.valueOf(timetofix));
-                     for (GpsSatellite sat : lm.getGpsStatus(null).getSatellites()) {
-                         if(sat.usedInFix()) {
-                             satellitesInFix++;
-                         }
-                         satellites++;
-                     }
-                     Log.i(LOG_TAG, String.valueOf(satellites) + " Used In Last Fix ("+satellitesInFix+")");
-                 }
-
-        */
 
              public class iLocationListener implements LocationListener
     {
 
         @Override
-        public void onLocationChanged(Location location) {  //extend in cycle  in order with Interval (n)
+            public void onLocationChanged(Location location) {  //extend in cycle  in order with Interval (n)
             Log.d("POS", "Lat: " + location.getLatitude() + " Lon: " + location.getLongitude());
-
 
             Intent intent = new Intent(MapsActivity.BROADCAST_ACTION);
             intent.putExtra(MapsActivity.PARAM_LON, location.getLongitude());
             intent.putExtra(MapsActivity.PARAM_LAT, location.getLatitude());
 
             sendBroadcast(intent);
-
-
         }
-        public void onStatusChanged(String provider, int status, Bundle extras) {}
-
-        public void onProviderEnabled(String provider) {
-            Log.d("", provider + "enabled");
-        }
-
-        public void onProviderDisabled(String provider) {
-            Log.d("",provider + "disabled");
-        }
-
-
     }
 
 

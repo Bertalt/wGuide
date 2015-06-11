@@ -51,34 +51,7 @@ public class WiFiviser extends Service {
         db = new DB(getApplicationContext());
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        br = new BroadcastReceiver() {
-            // действия при получении сообщений
-            public void onReceive(Context context, Intent intent) {
 
-                double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
-                double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
-                Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
-                mCurLoc = new LatLng(mLatitude, mLongitude);
-            }
-        };
-        // создаем объект для создания и управления версиями БД
-        // создаем фильтр для BroadcastReceiver
-        intFilt = new IntentFilter(BROADCAST_ACTION);
-
-        br_sat = new BroadcastReceiver() {
-            // действия при получении сообщений
-            public void onReceive(Context context, Intent intent) {
-
-                mSatCount = intent.getIntExtra(PARAM_SAT, 0);
-
-                Log.d(TAG, "onReceive: satellites =  " + mSatCount);
-            }
-        };
-        // создаем фильтр для BroadcastReceiver
-        intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
-
-        registerReceiver(br_sat, intFilt2);
-        registerReceiver(br, intFilt);
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -92,7 +65,7 @@ public class WiFiviser extends Service {
         broadcastListener mBroadcastListener = new broadcastListener();
 
         es.execute(mScanService);
-      //  es2.execute(mBroadcastListener);
+        es2.execute(mBroadcastListener);
         return super.onStartCommand(intent,flags,startId);
     }
 
@@ -130,9 +103,7 @@ public class WiFiviser extends Service {
                             if (scan.level< -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")))
                                 continue;
                             // игнорирует точку доступа, если уровень сигнала ниже, чем указан в настройках (для всех)
-                            if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
-                                if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
-                                    continue;
+
                             //игнорирует закрытые точки доступа, если в настройках отключен "Scan all"
 
                             Intent intent = new Intent(WifiListActivity.BROADCAST_ACTION_WF);
@@ -143,17 +114,22 @@ public class WiFiviser extends Service {
                             intent.putExtra(WifiListActivity.PARAM_COUNT, scanResults.size());
                             sendBroadcast(intent);
 
+                            if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
+                                if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
+                                    continue;
+
+                            if (mCurLoc == null) continue;
                             if (mSatCount < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
                                 continue;
                             //авт. часть игнорирует точку доступа, если доступно недостаточно спутников
 
-                          //  if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open")&& )
-                           while (mCurLoc == null);
-
+                            if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
+                                    if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
+                                        continue;
                             {
-                                if (!db.apFindBssid(scan.BSSID))
+                              AccessPoint tmp =  db.getByBssid(scan.BSSID);
+                                if (tmp == null)
                                 {
-
                                     db.insertRec( scan.BSSID,
                                             scan.SSID,
                                             scan.level,
@@ -165,7 +141,7 @@ public class WiFiviser extends Service {
                                 }
                                 else
                                 {
-                                    if (db.getByBssid(scan.BSSID).getLevel() < scan.level)
+                                    if (tmp.getLevel() < scan.level)
                                         db.insertRec( scan.BSSID,
                                                 scan.SSID,
                                                 scan.level,
@@ -176,9 +152,6 @@ public class WiFiviser extends Service {
                                                 new Date().getTime());
                                 }
                             }
-
-
-
                         }
                     }
                 }
@@ -194,8 +167,33 @@ public class WiFiviser extends Service {
         @Override
         public void run() {
 
+            br = new BroadcastReceiver() {
+                // действия при получении сообщений
+                public void onReceive(Context context, Intent intent) {
+                    double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
+                    double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
+                    Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
+                    mCurLoc = new LatLng(mLatitude, mLongitude);
+                }
+            };
+            // создаем объект для создания и управления версиями БД
+            // создаем фильтр для BroadcastReceiver
+            intFilt = new IntentFilter(BROADCAST_ACTION);
 
+            br_sat = new BroadcastReceiver() {
+                // действия при получении сообщений
+                public void onReceive(Context context, Intent intent) {
 
+                    mSatCount = intent.getIntExtra(PARAM_SAT, 0);
+
+                    Log.d(TAG, "onReceive: satellites =  " + mSatCount);
+                }
+            };
+            // создаем фильтр для BroadcastReceiver
+            intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
+
+            registerReceiver(br_sat, intFilt2);
+            registerReceiver(br, intFilt);
 
         }
     }

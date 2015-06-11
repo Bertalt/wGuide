@@ -28,11 +28,11 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private static final int CM_DELETE_ID = 1;
     private static final int CM_OPEN_ID = 2;
 
-    ListView lvData;
-   static LinearLayout linearLayout;
-    DB db;
-    View layerPbLoad, layerTvLoad;
-    ApAdapter scAdapter;
+    private ListView lvData;
+    private static LinearLayout linearLayout;
+    private DB db;
+    private View layerPbLoad, layerTvLoad;
+    private ApAdapter scAdapter;
     private final String TAG = "open_db";
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {

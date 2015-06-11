@@ -99,7 +99,7 @@ public class WifiListActivity
         startService(new Intent(this, WiFiviser.class));
 
         // создаем массив списков
-        mWFList = new ArrayList<HashMap<String, Object>>();
+            mWFList = new ArrayList<HashMap<String, Object>>();
 
 
         listView = (ListView) findViewById(R.id.listView);
@@ -238,10 +238,11 @@ public class WifiListActivity
             AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item
                     .getMenuInfo();
 
-            String tmp = mWFList.get( item.getItemId()).get(lBSSID).toString();
-            if (db.apFindBssid(tmp)) {
+            String tmp_bssid = mWFList.get( item.getItemId()).get(lBSSID).toString();
+            AccessPoint tmp_obj = db.getByBssid(tmp_bssid);
+            if ( tmp_obj != null) {
 
-                if (db.getByBssid(tmp).getLevel() >= Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3))) {
+                if (tmp_obj.getLevel() >= Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3))) {
                     Toast.makeText(this, "This point already exist with better signal", Toast.LENGTH_SHORT).show();
                     return true;
                 } else {

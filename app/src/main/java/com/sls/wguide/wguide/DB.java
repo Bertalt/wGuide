@@ -164,6 +164,8 @@ public class DB {
     */
     public AccessPoint getByBssid(String bssid)
     {
+        try
+        {
         for (int i =0; i < mApList.size(); i++ )
         {
             if (mApList.get(i).getBSSID().equalsIgnoreCase(bssid))
@@ -172,6 +174,13 @@ public class DB {
                 return mApList.get(i);
             }
 
+        }
+        }catch (NullPointerException ex)
+        {
+            ex.printStackTrace();
+            Log.e(TAG, "Wait... I try fix it");
+            getAllData();
+            return getByBssid(bssid);
         }
         return null;
     }
@@ -189,7 +198,7 @@ public class DB {
      cv.put(ENCRYPT, encrypt);
      cv.put(TIME, time);
 
-     if (apFindBssid(bssid)) {
+     if (getByBssid(bssid) != null) {
          Log.d(TAG, ssid + "'s data was updated");
          boolean isUpdate = mDB.update(TABLE_NAME, cv, BSSID + "=?", new String[]{bssid + ""}) > 0;
          close();
@@ -222,7 +231,7 @@ close();
      return false;
  }
     }
-
+/*
     public boolean apFindBssid (String bssid)
     {
         try
@@ -242,10 +251,10 @@ close();
         }
         return false;
     }
-
+*/
 
     // удалить запись из DB_TABLE
-    public void delRec(long id) {
+        public void delRec(long id) {
         open();
         mDB.delete(TABLE_NAME, ID + " = " + id, null);
         close();
