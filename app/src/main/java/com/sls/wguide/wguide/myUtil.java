@@ -1,6 +1,5 @@
 package com.sls.wguide.wguide;
 
-
 /**
  * Created by Sls on 14.05.2015.
  */
@@ -22,6 +21,4 @@ public class myUtil {
         else
             return "Open";
     }
-
-
 }

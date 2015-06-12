@@ -47,15 +47,17 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
             handler.post(new Runnable() {
                 public void run() {
 
+                    alAccessPoints.get(n).getLevel();
+
                    mMarkerList.add(n, mMap.addMarker(new MarkerOptions()           //добавлеие маркера на карту + в список маркеров
                             .position(new LatLng(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon()))
                             .title(alAccessPoints.get(n).getSSID())
                             .icon(BitmapDescriptorFactory
                                     .fromBitmap(BitmapFactory
-                                            .decodeResource(context.getResources(), R.mipmap.ic_wifi_launcher)))
+                                      .decodeResource(context.getResources(), selectWifiMarker(alAccessPoints.get(n).getLevel()))))
                             .snippet("Signal: " + alAccessPoints.get(n).getLevel()              //описание точки по нажатию на маркер
                                     + "\n " + alAccessPoints.get(n).getEncrypt())
-                            .draggable(true)));
+                                    .draggable(true)));
 
                 }
             });
@@ -64,6 +66,21 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
 
         Log.d(TAG, "Was load " + count + " WiFi markers");
         //            Toast.makeText(getApplicationContext(), "Was load "+ count +" WiFi markers", Toast.LENGTH_SHORT).show();
+    }
+
+    private int selectWifiMarker(int signal)
+    {
+        int m4l = -60;
+        if (signal >= m4l)
+            return R.mipmap.ic_wifi_launcher;
+            else if (signal >= m4l-10)
+            return R.mipmap.ic_wifi_launcher_bmid;
+            else if(signal >= m4l-20)
+            return R.mipmap.ic_wifi_launcher_lmid;
+            else if (signal >=m4l-30)
+            return R.mipmap.ic_wifi_launcher_bottom;
+
+        return R.mipmap.ic_wifi_launcher;
     }
 
     @Override

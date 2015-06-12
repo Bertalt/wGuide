@@ -1,6 +1,5 @@
 package com.sls.wguide.wguide;
 
-
 /**
  * Created by Sls on 21.05.2015.
  */
@@ -166,6 +165,7 @@ public class DB {
     {
         try
         {
+
         for (int i =0; i < mApList.size(); i++ )
         {
             if (mApList.get(i).getBSSID().equalsIgnoreCase(bssid))
@@ -231,27 +231,6 @@ close();
      return false;
  }
     }
-/*
-    public boolean apFindBssid (String bssid)
-    {
-        try
-        {
-            for (int i =0; i < mApList.size(); i++ )
-            {
-                if (mApList.get(i).getBSSID().equalsIgnoreCase(bssid))
-                return true;
-            }
-
-        }catch (NullPointerException ex)
-        {
-            ex.printStackTrace();
-            Log.e(TAG, "Wait... I try fix it");
-            getAllData();
-            return apFindBssid(bssid);
-        }
-        return false;
-    }
-*/
 
     // удалить запись из DB_TABLE
         public void delRec(long id) {

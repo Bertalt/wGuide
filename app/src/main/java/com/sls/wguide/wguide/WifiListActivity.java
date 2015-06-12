@@ -30,7 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by сергей on 08.05.2015.
+ * Created on 08.05.2015.
  */
 public class WifiListActivity
         extends FragmentActivity {
@@ -50,7 +50,6 @@ public class WifiListActivity
     private  DB db;
     private LinearLayout progressLayout;
     private ExecutorService mExecutorService;
-
     private static final String TAG = "WF_list";
     private static int mSatCount = 0;
     private String mSSID;
@@ -60,9 +59,7 @@ public class WifiListActivity
     private String mEncrypt;
    // public static ArrayList<AccessPoint> mAPList;
     static FragmentManager fm;
-
     private ArrayList<HashMap<String, Object>> mWFList;
-
     private static final String lLEVEL = "level"; // первый
     private static final String lSSID = "SSID"; // первый второго
     private static final String lBSSID = "BSSID";  // второй второго
@@ -88,7 +85,6 @@ public class WifiListActivity
         pbTitle.setText(getResources().getText(R.string.header_search)                      // part title from resources
                 +" -"+  sharedPref.getString( SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")// from references
                 + "dB...");
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -100,8 +96,6 @@ public class WifiListActivity
 
         // создаем массив списков
             mWFList = new ArrayList<HashMap<String, Object>>();
-
-
         listView = (ListView) findViewById(R.id.listView);
 
 
@@ -110,14 +104,10 @@ public class WifiListActivity
                 new int[]{R.id.tvLevel_wf, R.id.tvSSID_wf, R.id.tvBSSID_wf, R.id.tvEncrypt_wf});
 
         listView.setAdapter(adapter);
-
-
         mExecutorService = Executors.newFixedThreadPool(1);
         mCountWF = 0;
        // mAPList = new ArrayList<AccessPoint>();
         // создаем BroadcastReceiver
-
-
         mExecutorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -138,9 +128,6 @@ public class WifiListActivity
                 IntentFilter intFilt1 = new IntentFilter(BROADCAST_ACTION_LOC);
                 // регистрируем (включаем) BroadcastReceiver
                 registerReceiver(br_loc, intFilt1);
-
-
-
                 br = new BroadcastReceiver() {
                     // действия при получении сообщений
                     public void onReceive(Context context, Intent intent) {
@@ -152,10 +139,8 @@ public class WifiListActivity
                 };
                 // создаем фильтр для BroadcastReceiver
                 IntentFilter intFilt2 = new IntentFilter(BROADCAST_ACTION);
-
                 // регистрируем (включаем) BroadcastReceiver
                 registerReceiver(br, intFilt2);
-
 
                 br_wf = new BroadcastReceiver() {
                     // действия при получении сообщений
@@ -198,7 +183,6 @@ public class WifiListActivity
                             return;
                         }
 
-
                         HashMap<String, Object> hm;
                         hm = new HashMap<>();
                         hm.put(lLEVEL, mLEVEL+"dB"); //
@@ -210,8 +194,6 @@ public class WifiListActivity
                                 //mAPList.add(new AccessPoint(mSSID, mBSSID, mLEVEL, mEncrypt, new Date().getTime()));
                                 Log.d("inputing", "Input " + mSSID + " in list");
                                 Log.d("myList", "list size = " + mWFList.size());
-
-
                     }
                 };
                 IntentFilter intFilt_wf = new IntentFilter(BROADCAST_ACTION_WF);
@@ -225,7 +207,6 @@ public class WifiListActivity
         registerForContextMenu(listView);
 
              }
-
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -258,8 +239,6 @@ public class WifiListActivity
                     return true;
                 }
             }
-
-
             db.insertRec(mWFList.get(acmi.position).get(lBSSID).toString(),
                     mWFList.get(acmi.position).get(lSSID).toString(),
                     Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3)),
@@ -310,7 +289,4 @@ public class WifiListActivity
                  // Do stuff here.
                  Log.i("FragmentAlertDialog", "Negative click!");
              }
-
-
-
     }

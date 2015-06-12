@@ -1,11 +1,12 @@
 <resources>
-    <string name="app_name">JeMapper</string>
-    <string name="title_activity_maps">JeMapper</string>
+    <string name="app_name">wGuide</string>
+    <string name="title_activity_maps">wGuide</string>
     <string name="action_settings">Settings</string>
     <string name="action_wifiList">WiFi list</string>
     <string name="buttonScan">Scan wireless</string>
     <string name="title_activity_wifilist">Scanner</string>
     <string name="button_find_me">Find Me</string>
+    <string name="action_update_map">Update map</string>
 
     <string name="switch_search_mod">Search WiFi</string>
     <string name="switch_search_mod_on">Search MOD</string>

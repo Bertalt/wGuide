@@ -1,6 +1,5 @@
 package com.sls.wguide.wguide;
 
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +44,7 @@ public class MapsActivity extends ActionBarActivity
          {
              private GoogleMap mMap; // Might be null if Google Play services APK (GPsA) is not available
     private Marker mMarkerCurrentPos;
-    private Switch mSwitchMod  =null;
+   // private Switch mSwitchMod  =null;
     private boolean mLocationAccuracy = false;
     public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast";
     private BroadcastReceiver br;
@@ -82,7 +81,7 @@ public class MapsActivity extends ActionBarActivity
 
         Log.d("LifeCycle", "onCreate()");
         bCurrentPos = (Button) findViewById(R.id.bCurrentPos);
-        mSwitchMod = (Switch) findViewById(R.id.switch_search_mod);
+        //mSwitchMod = (Switch) findViewById(R.id.switch_search_mod);
         tvStatCount = (TextView) findViewById(R.id.tvStatCount);
 
         GSL =  new GpsStatusListener(tvStatCount);
@@ -90,7 +89,7 @@ public class MapsActivity extends ActionBarActivity
 
         startService(new Intent(this, ServiceForLocation.class).putExtra("Accuracy", true));
 
-
+/*
         mSwitchMod.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -101,7 +100,7 @@ public class MapsActivity extends ActionBarActivity
 
             }
         });
-
+*/
 
         // создаем BroadcastReceiver
         br = new BroadcastReceiver() {
@@ -150,7 +149,7 @@ public class MapsActivity extends ActionBarActivity
         Log.d("LifeCycle", "onResume()");
         setUpMapIfNeeded();
         mLocationAccuracy = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false);
-        mSwitchMod.setChecked(mLocationAccuracy);
+
         mMap.clear();
         new FillInMap(this, mMap).start();//наполнение карты маркерами wifi точек
 
@@ -164,7 +163,7 @@ public class MapsActivity extends ActionBarActivity
         goCurrentLocation(mMap);
         else
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
-        mSwitchMod.setChecked(mLocationAccuracy);
+       // mSwitchMod.setChecked(mLocationAccuracy);
     }
 
 
@@ -173,8 +172,20 @@ public class MapsActivity extends ActionBarActivity
         super.onStart();
         Log.d("LifeCycle", "onStart()");
 
-            if (!mServiceRunState)
-            mServiceWithTimer.start();
+            if (!mServiceWithTimer.isAlive() && sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false)) //
+            {
+                myTimer = new Timer();
+                mServiceWithTimer = new Thread(new RunServiceWithTimer());
+                mServiceWithTimer.start();
+            }
+
+
+        if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false))// остановка сервиса, если настройки изменились
+        {
+            myTimer.cancel();
+        }
+
+
 
 
     }
@@ -279,6 +290,10 @@ public class MapsActivity extends ActionBarActivity
         {
             startActivity(new Intent(this, ListFromDb.class));
             return true;
+        }
+        if (id == R.id.action_update_map) {
+            mMap.clear();
+            new FillInMap(this, mMap).start();//наполнение карты маркерами wifi точек
         }
         return super.onOptionsItemSelected(item);
     }

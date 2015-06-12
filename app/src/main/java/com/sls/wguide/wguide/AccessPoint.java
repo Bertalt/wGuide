@@ -1,9 +1,8 @@
 package com.sls.wguide.wguide;
-
 /**
- * Created by сергей on 12.05.2015.
+ * Created  on 12.05.2015.
  */
-public class AccessPoint {
+public class AccessPoint{
 
 
 
@@ -118,5 +117,6 @@ public class AccessPoint {
     private double lon;
     private String encrypt;
     private long time;
+
 
 }

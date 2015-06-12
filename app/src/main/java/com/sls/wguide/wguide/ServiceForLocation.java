@@ -22,7 +22,7 @@ import static com.google.android.gms.location.LocationServices.API;
 import static com.google.android.gms.location.LocationServices.FusedLocationApi;
 
 /**
- * Created by сергей on 12.05.2015.
+ * Created by  on 12.05.2015.
  */
 public class ServiceForLocation extends Service
         implements  GoogleApiClient.ConnectionCallbacks,
@@ -187,6 +187,4 @@ public class ServiceForLocation extends Service
             sendBroadcast(intent);
         }
     }
-
-
 }

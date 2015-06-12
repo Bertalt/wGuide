@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -117,15 +118,16 @@ public class WiFiviser extends Service {
                             if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
                                 if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
                                     continue;
+                     if(scan.level < -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_AUTO_MIN_LEVEL, "80")))
+                                continue;
 
-                            if (mCurLoc == null) continue;
+                            while(mCurLoc == null)
+                                Log.i(TAG, "I'm waiting of satellites...");
                             if (mSatCount < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
                                 continue;
+
                             //авт. часть игнорирует точку доступа, если доступно недостаточно спутников
 
-                            if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
-                                    if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
-                                        continue;
                             {
                               AccessPoint tmp =  db.getByBssid(scan.BSSID);
                                 if (tmp == null)
