@@ -14,7 +14,7 @@
     <string name="menu_remove">Remove</string>
 
     <string name="content_open_popup">Open Popup Menu</string>
-
+    <string name="toast_empty_database">The database is empty</string>
     <string name="alert_dialog_ok"> I know what i\'m doing </string>
     <string name="alert_dialog_cancel">Thx, I\'ll try later</string>
     <string name="alert_dialog_two_buttons_title">Recommendation</string>

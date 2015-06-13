@@ -34,6 +34,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,7 +50,9 @@ public class MapsActivity extends ActionBarActivity
     private boolean mLocationAccuracy = false;
     public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast";
     private BroadcastReceiver br;
+    private BroadcastReceiver br_update_map;
     private static final String TAG = "Map";
+             // Declare a variable for the cluster manager.
              private ExecutorService mExecutorService;
              public static final String PARAM_LON = "Longitude";
              public static final String PARAM_LAT = "Latitude";
@@ -117,6 +121,15 @@ public class MapsActivity extends ActionBarActivity
 
             }
         };
+        br_update_map = new BroadcastReceiver() {
+            // действия при получении сообщений
+            public void onReceive(Context context, Intent intent) {
+                mMap.clear();
+                new FillInMap(getApplicationContext(), mMap).start();
+            }
+        };
+        IntentFilter intFilt_update_map = new IntentFilter(DB.BROADCAST_UPDATE_DB);
+        registerReceiver(br_update_map, intFilt_update_map);
 /*
             ////// Регистрация слушателя доступных спутников
  */
@@ -164,6 +177,8 @@ public class MapsActivity extends ActionBarActivity
         else
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
        // mSwitchMod.setChecked(mLocationAccuracy);
+
+
     }
 
 
@@ -423,5 +438,5 @@ public class MapsActivity extends ActionBarActivity
                      }
                  }
 
+             }
 
-         }

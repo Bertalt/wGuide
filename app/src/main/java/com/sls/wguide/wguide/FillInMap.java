@@ -1,6 +1,8 @@
 package com.sls.wguide.wguide;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +14,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterItem;
+import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,14 +30,18 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
     private Context context;
     private GoogleMap mMap;
     private ArrayList<Marker> mMarkerList;
+    private ClusterManager<MyItem> mClusterManager;
     private String TAG = "FillInMap";
     public FillInMap (Context context, GoogleMap Map)
     {
+
         this.context = context;
         db = new DB(context);
         mMap = Map;
         mMarkerList = new ArrayList<>();
         mMap.setOnMarkerDragListener(this);
+
+
     }
     @Override
     public void run() {
@@ -58,6 +66,12 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                             .snippet("Signal: " + alAccessPoints.get(n).getLevel()              //описание точки по нажатию на маркер
                                     + "\n " + alAccessPoints.get(n).getEncrypt())
                                     .draggable(true)));
+
+                   // setUpClusterer();
+                   // MyItem offsetItem = new MyItem(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon());
+                   // mClusterManager.addItem(offsetItem);
+
+
 
                 }
             });
@@ -122,4 +136,35 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
         return null;
 
     }
+
+    public class MyItem implements ClusterItem {
+        private final LatLng mPosition;
+
+        public MyItem(double lat, double lng) {
+            mPosition = new LatLng(lat, lng);
+        }
+
+        @Override
+        public LatLng getPosition() {
+            return mPosition;
+        }
+    }
+
+    private void setUpClusterer() {
+
+        // Initialize the manager with the context and the map.
+        // (Activity extends context, so we can pass 'this' in the constructor.)
+        mClusterManager = new ClusterManager<MyItem>(context,mMap);
+
+        // Point the map's listeners at the listeners implemented by the cluster
+        // manager.
+        mMap.setOnCameraChangeListener(mClusterManager);
+        mMap.setOnMarkerClickListener(mClusterManager);
+
+
+
+
+        // Add cluster items (markers) to the cluster manager.
+    }
+
 }

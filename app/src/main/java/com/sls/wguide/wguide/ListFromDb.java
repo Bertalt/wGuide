@@ -15,12 +15,15 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Cursor> {
@@ -33,6 +36,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private DB db;
     private View layerPbLoad, layerTvLoad;
     private ApAdapter scAdapter;
+    private LinearLayout mEmptyLayout;
     private final String TAG = "open_db";
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
@@ -60,6 +64,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         lvData = (ListView) findViewById(R.id.list_view_db);
 
             lvData.setAdapter(scAdapter);
+
             registerForContextMenu(lvData);
         // добавляем контекстное меню к списку
 
@@ -145,6 +150,8 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         if  (linearLayout != null)
             linearLayout.removeAllViews();
         scAdapter.swapCursor(cursor);
+        if (cursor.getCount() == 0)
+        Toast.makeText(getApplicationContext(), getResources().getText(R.string.toast_empty_database), Toast.LENGTH_SHORT).show();
     }
 
     @Override

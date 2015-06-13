@@ -6,6 +6,7 @@ package com.sls.wguide.wguide;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -28,6 +29,7 @@ public class DB {
     public static final String ENCRYPT = "encrypt";
     public static final String WHO_ADD= "who_add";
     public static final String TIME = "time";
+    public static final String BROADCAST_UPDATE_DB = "com.sls.wguide.updated_db";
 
     private final String TAG = "database";
 
@@ -202,6 +204,7 @@ public class DB {
          Log.d(TAG, ssid + "'s data was updated");
          boolean isUpdate = mDB.update(TABLE_NAME, cv, BSSID + "=?", new String[]{bssid + ""}) > 0;
          close();
+      //   sendBroadcaset_update();
          return isUpdate;
      }
 
@@ -222,12 +225,13 @@ public class DB {
      Log.d(TAG, ssid + " was added");
      mDB.insert(TABLE_NAME, null, cv);
 close();
+   //  sendBroadcaset_update();
      return true;
  }
  catch (NullPointerException NPE)
  {
      NPE.printStackTrace();
-     Log.e(TAG,"Caught null. (database)");
+     Log.e(TAG, "Caught null. (database)");
      return false;
  }
     }
@@ -239,6 +243,11 @@ close();
         close();
     }
 
+    private void sendBroadcaset_update()
+    {
+        Intent intent = new Intent(BROADCAST_UPDATE_DB);
+        mCtx.sendBroadcast(intent);
+    }
     // класс по созданию и управлению БД
     private class DBHelper extends SQLiteOpenHelper {
 
@@ -257,4 +266,5 @@ close();
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         }
     }
+
 }
