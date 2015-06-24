@@ -71,8 +71,6 @@ public class WiFiviser extends Service {
     }
 
     public void onDestroy() {
-        super.onDestroy();
-
         try{
             unregisterReceiver(br_sat);
             unregisterReceiver(br);
@@ -86,6 +84,7 @@ public class WiFiviser extends Service {
             super.onDestroy();
         }
         Log.d(TAG, "scanService onDestroy");
+        super.onDestroy();
     }
     class scanService implements Runnable
     {
@@ -193,10 +192,18 @@ public class WiFiviser extends Service {
             };
             // создаем фильтр для BroadcastReceiver
             intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
-
-            registerReceiver(br_sat, intFilt2);
-            registerReceiver(br, intFilt);
-
+try {
+     if (br_sat.isInitialStickyBroadcast())
+         unregisterReceiver(br_sat);
+    registerReceiver(br_sat, intFilt2);
+    if (br.isInitialStickyBroadcast())
+        unregisterReceiver(br);
+    registerReceiver(br, intFilt);
+}catch (Exception ex)
+{
+    ex.printStackTrace();
+    stopSelf();
+}
         }
     }
 }

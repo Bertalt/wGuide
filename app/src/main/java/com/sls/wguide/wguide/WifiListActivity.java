@@ -97,7 +97,7 @@ public class WifiListActivity
         // создаем массив списков
             mWFList = new ArrayList<HashMap<String, Object>>();
         listView = (ListView) findViewById(R.id.listView);
-
+        listView.setEmptyView( findViewById( R.id.empty_list_view ) );
 
         adapter = new SimpleAdapter(getApplicationContext(), mWFList,
                 R.layout.list_item, new String[]{lLEVEL, lSSID, lBSSID, lENCRYPT},

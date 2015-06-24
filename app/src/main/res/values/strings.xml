@@ -19,8 +19,8 @@
     <string name="alert_dialog_cancel">Thx, I\'ll try later</string>
     <string name="alert_dialog_two_buttons_title">Recommendation</string>
     <string name="menu_add_in_db">Add in DB</string>
-    <string name="recomend_part_1">We recommend that you do not add to the database a new record. You have connection with </string>
-    <string name="recomend_part_2">satellites. This Is not enough for a best accuracy.</string>
+    <string name="recomend_part_1">We recommend you not to add a new record to the database. </string>
+    <string name="recomend_part_2"> This coordinates will be wrong. </string>
 
     <string name="title_activity_listFromDb">Database</string>
     <string name="delete_record">Delete record</string>
@@ -29,7 +29,7 @@
     <string name="action_list_from_db">Open database</string>
     <string name="list_empty">EMPTY</string>
     <string name="loading">Loading...</string>
-    <string name="header_search">Search for network with a signal greater than </string>
+    <string name="header_search">Search for network with a batter signal than </string>
 
     <string name="context_menu_adding"> Add this access point</string>
 
@@ -42,7 +42,7 @@
     <string name="pref_title_closeOn">Scan all</string>
 
     <string name="pref_count_sat_title"> Amount of satellites </string>
-    <string name="pref_count_sat_dialog_title"> Choose amount of satellites</string>
+    <string name="pref_count_sat_dialog_title"> Choose number of satellites</string>
     <string name ="pref_syncConnectionTypes_default">6</string>
 
     <!-- headers -->
@@ -52,12 +52,12 @@
     <string name="headerEncrypt">Encryption </string>
 
     <!-- Preferences GPS-->
-    <string name="title_count_gps"> Amount of satellites</string>
-    <string name="summary_count_gps"> For safe working with coordinates</string>
+    <string name="title_count_gps"> Number of satellites</string>
+    <string name="summary_count_gps"> For safe work with coordinates</string>
 
     <!-- Prefer WiFi -->
     <string name="title_wifi_min_signal"> Minimum signal to search</string>
-    <string name="summary_wifi_min_signal"> The service of scanning will ignore signal lower than this. Attention! You should  input unsigned value.</string>
+    <string name="summary_wifi_min_signal"> The service of scanning will ignore signal lower than this. Attention! You should  input unsigned quantity.</string>
     <string name="title_wifi_auto_min_signal"> Minimum signal to automatic adding</string>
-    <string name="summary_wifi_auto_min_signal"> The service of automatic adding in database will ignore signal lower than this. Attention! You should  input unsigned value.</string>
+    <string name="summary_wifi_auto_min_signal"> The service of automatic adding in database will ignore signal lower than this. Attention! You should  input unsigned quantity.</string>
 </resources>

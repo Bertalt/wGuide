@@ -64,7 +64,7 @@ public class ServiceForLocation extends Service
         super.onDestroy();
         mGoogleApiClient.disconnect();
         Log.d(LOG_TAG, "MyService onDestroy");
-        if (LocLis!=null)
+        if (LocLis!=null && mGoogleApiClient.isConnected())
             FusedLocationApi.removeLocationUpdates(mGoogleApiClient, LocLis);
 
         //lm.removeGpsStatusListener(this);

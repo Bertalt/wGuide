@@ -93,19 +93,6 @@ public class MapsActivity extends ActionBarActivity
 
         startService(new Intent(this, ServiceForLocation.class).putExtra("Accuracy", true));
 
-/*
-        mSwitchMod.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                mLocationAccuracy = !mLocationAccuracy;
-                mSwitchMod.setChecked(mLocationAccuracy);
-                Log.d("Switch", "Search mod " + mLocationAccuracy);
-
-            }
-        });
-*/
-
         // создаем BroadcastReceiver
         br = new BroadcastReceiver() {
             // действия при получении сообщений
@@ -116,7 +103,6 @@ public class MapsActivity extends ActionBarActivity
                 Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
                 if (mMarkerCurrentPos != null)
                     mMarkerCurrentPos.remove();
-
                 mMarkerCurrentPos =mMap.addMarker(newMarkerMyPosition(mCurLoc));
 
             }
@@ -193,16 +179,10 @@ public class MapsActivity extends ActionBarActivity
                 mServiceWithTimer = new Thread(new RunServiceWithTimer());
                 mServiceWithTimer.start();
             }
-
-
         if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false))// остановка сервиса, если настройки изменились
         {
             myTimer.cancel();
         }
-
-
-
-
     }
 
     @Override
@@ -220,6 +200,7 @@ public class MapsActivity extends ActionBarActivity
         Log.d("LifeCycle", "onDestroy()");
         // дерегистрируем (выключаем) BroadcastReceiver
         unregisterReceiver(br);
+        unregisterReceiver(br_update_map);
         lm.removeGpsStatusListener(GSL);
         stopService(new Intent(this, ServiceForLocation.class));
         stopService(new Intent(this, WiFiviser.class));
@@ -231,6 +212,8 @@ public class MapsActivity extends ActionBarActivity
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
+            if (mMap == null)
+                Log.e(TAG, "Can not find map");
 
 
             // Check if we were successful in obtaining the map.
@@ -250,8 +233,6 @@ public class MapsActivity extends ActionBarActivity
 
 
     }
-
-
     private void setUpMap() {
         mIntent = getIntent();
         double mLat = mIntent.getDoubleExtra("lat", 48.35);
@@ -271,8 +252,6 @@ public class MapsActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-
-
         return true;
     }
 
@@ -280,7 +259,6 @@ public class MapsActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
 
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));

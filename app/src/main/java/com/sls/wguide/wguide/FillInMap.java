@@ -34,14 +34,11 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
     private String TAG = "FillInMap";
     public FillInMap (Context context, GoogleMap Map)
     {
-
         this.context = context;
         db = new DB(context);
         mMap = Map;
         mMarkerList = new ArrayList<>();
         mMap.setOnMarkerDragListener(this);
-
-
     }
     @Override
     public void run() {
@@ -54,7 +51,6 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
             final int n = i;
             handler.post(new Runnable() {
                 public void run() {
-
                     alAccessPoints.get(n).getLevel();
 
                    mMarkerList.add(n, mMap.addMarker(new MarkerOptions()           //добавлеие маркера на карту + в список маркеров
@@ -62,7 +58,8 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                             .title(alAccessPoints.get(n).getSSID())
                             .icon(BitmapDescriptorFactory
                                     .fromBitmap(BitmapFactory
-                                      .decodeResource(context.getResources(), selectWifiMarker(alAccessPoints.get(n).getLevel()))))
+                                      .decodeResource(context.getResources(), selectWifiMarker(alAccessPoints.get(n).getLevel()
+                                                                                                ,alAccessPoints.get(n).getEncrypt() ))))
                             .snippet("Signal: " + alAccessPoints.get(n).getLevel()              //описание точки по нажатию на маркер
                                     + "\n " + alAccessPoints.get(n).getEncrypt())
                                     .draggable(true)));
@@ -70,36 +67,44 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                    // setUpClusterer();
                    // MyItem offsetItem = new MyItem(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon());
                    // mClusterManager.addItem(offsetItem);
-
-
-
                 }
             });
             count++;
         }
-
         Log.d(TAG, "Was load " + count + " WiFi markers");
         //            Toast.makeText(getApplicationContext(), "Was load "+ count +" WiFi markers", Toast.LENGTH_SHORT).show();
     }
 
-    private int selectWifiMarker(int signal)
+    private int selectWifiMarker(int signal, String encrypt)
     {
         int m4l = -60;
-        if (signal >= m4l)
-            return R.mipmap.ic_wifi_launcher;
-            else if (signal >= m4l-10)
-            return R.mipmap.ic_wifi_launcher_bmid;
-            else if(signal >= m4l-20)
-            return R.mipmap.ic_wifi_launcher_lmid;
-            else if (signal >=m4l-30)
-            return R.mipmap.ic_wifi_launcher_bottom;
+        if (encrypt.equalsIgnoreCase("open")) {
+            if (signal >= m4l)
+                return R.mipmap.ic_wifi_launcher;
+            else if (signal >= m4l - 10)
+                return R.mipmap.ic_wifi_launcher_bmid;
+            else if (signal >= m4l - 20)
+                return R.mipmap.ic_wifi_launcher_lmid;
+            else if (signal >= m4l - 30)
+                return R.mipmap.ic_wifi_launcher_bottom;
 
-        return R.mipmap.ic_wifi_launcher;
+            return R.mipmap.ic_wifi_launcher;
+        }
+        else
+            if (signal >= m4l)
+            return R.mipmap.ic_wifi_launcher_lock;
+        else if (signal >= m4l-10)
+            return R.mipmap.ic_wifi_launcher_bmid_lock;
+        else if(signal >= m4l-20)
+            return R.mipmap.ic_wifi_launcher_lmid_lock;
+        else if (signal >=m4l-30)
+            return R.mipmap.ic_wifi_launcher_bottom_lock;
+
+        return R.mipmap.ic_wifi_launcher_lock;
     }
 
     @Override
     public void onMarkerDragStart(Marker marker) {
-
     }
 
     @Override
