@@ -13,6 +13,7 @@ public class SettingsActivity extends Activity {
     public static final String KEY_PREF_GPS_COUNT_SAT= "pref_key_gps_count_sat";
     public static final String KEY_PREF_WIFI_MIN_LEVEL= "pref_key_wifi_min_signal";
     public static final String KEY_PREF_WIFI_AUTO_MIN_LEVEL= "pref_key_wifi_auto_min_signal";
+    public static final String KEY_PREF_MAP_AVA_RADIUS= "pref_key_map_ava_radius";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

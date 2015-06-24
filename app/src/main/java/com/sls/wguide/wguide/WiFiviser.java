@@ -72,8 +72,6 @@ public class WiFiviser extends Service {
 
     public void onDestroy() {
         try{
-            unregisterReceiver(br_sat);
-            unregisterReceiver(br);
 
         }catch (NullPointerException NPE)
         {
@@ -91,8 +89,11 @@ public class WiFiviser extends Service {
         @Override
         public void run() {
 
-            myUtil util = new myUtil();
-            db.getAllData();
+            try {
+                myUtil util = new myUtil();
+                db.getAllData();
+                mCurLoc = MapsActivity.mCurLoc;
+                mSatCount = MapsActivity.mSatCount;
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                 if (wifiManager.isWifiEnabled()) {
 
@@ -100,7 +101,7 @@ public class WiFiviser extends Service {
                     if (scanResults != null) {
                         for (ScanResult scan : scanResults) {
 
-                            if (scan.level< -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")))
+                            if (scan.level < -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")))
                                 continue;
                             // игнорирует точку доступа, если уровень сигнала ниже, чем указан в настройках (для всех)
 
@@ -117,21 +118,27 @@ public class WiFiviser extends Service {
                             if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
                                 if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
                                     continue;
-                     if(scan.level < -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_AUTO_MIN_LEVEL, "80")))
+                            if (scan.level < -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_AUTO_MIN_LEVEL, "80")))
                                 continue;
 
-                            while(mCurLoc == null)
+                            long mTime1 = new Date().getTime();
+
+                            while (MapsActivity.mCurLoc == null )
+                            {
                                 Log.i(TAG, "I'm waiting of satellites...");
-                            if (mSatCount < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
+                                if (new Date().getTime() - mTime1 > 4000)
+                                    stopSelf();
+                            }
+
+                            if (MapsActivity.mSatCount < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
                                 continue;
 
                             //авт. часть игнорирует точку доступа, если доступно недостаточно спутников
 
                             {
-                              AccessPoint tmp =  db.getByBssid(scan.BSSID);
-                                if (tmp == null)
-                                {
-                                    db.insertRec( scan.BSSID,
+                                AccessPoint tmp = db.getByBssid(scan.BSSID);
+                                if (tmp == null) {
+                                    db.insertRec(scan.BSSID,
                                             scan.SSID,
                                             scan.level,
                                             mCurLoc.latitude,
@@ -139,11 +146,9 @@ public class WiFiviser extends Service {
                                             util.SecurTypeWiFi(scan.capabilities),
                                             "S",
                                             new Date().getTime());
-                                }
-                                else
-                                {
+                                } else {
                                     if (tmp.getLevel() < scan.level)
-                                        db.insertRec( scan.BSSID,
+                                        db.insertRec(scan.BSSID,
                                                 scan.SSID,
                                                 scan.level,
                                                 mCurLoc.latitude,
@@ -155,10 +160,13 @@ public class WiFiviser extends Service {
                             }
                         }
                     }
-                }
-                else
-                Log.d(TAG,"WiFi Disable") ;
-
+                } else
+                    Log.d(TAG, "WiFi Disable");
+            }catch (NullPointerException NPE)
+            {
+                NPE.printStackTrace();
+                stopSelf();
+            }
         stopSelf();
         }
 
@@ -175,6 +183,7 @@ public class WiFiviser extends Service {
                     double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
                     Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
                     mCurLoc = new LatLng(mLatitude, mLongitude);
+                    unregisterReceiver(br);
                 }
             };
             // создаем объект для создания и управления версиями БД
@@ -188,22 +197,16 @@ public class WiFiviser extends Service {
                     mSatCount = intent.getIntExtra(PARAM_SAT, 0);
 
                     Log.d(TAG, "onReceive: satellites =  " + mSatCount);
+                    unregisterReceiver(br_sat);
                 }
             };
             // создаем фильтр для BroadcastReceiver
             intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
-try {
-     if (br_sat.isInitialStickyBroadcast())
-         unregisterReceiver(br_sat);
-    registerReceiver(br_sat, intFilt2);
-    if (br.isInitialStickyBroadcast())
-        unregisterReceiver(br);
-    registerReceiver(br, intFilt);
-}catch (Exception ex)
-{
-    ex.printStackTrace();
-    stopSelf();
-}
+
+
+         //   registerReceiver(br_sat, intFilt2);
+         //   registerReceiver(br, intFilt);
+
         }
     }
 }

@@ -128,6 +128,7 @@ public class WifiListActivity
                 IntentFilter intFilt1 = new IntentFilter(BROADCAST_ACTION_LOC);
                 // регистрируем (включаем) BroadcastReceiver
                 registerReceiver(br_loc, intFilt1);
+
                 br = new BroadcastReceiver() {
                     // действия при получении сообщений
                     public void onReceive(Context context, Intent intent) {
@@ -141,6 +142,7 @@ public class WifiListActivity
                 IntentFilter intFilt2 = new IntentFilter(BROADCAST_ACTION);
                 // регистрируем (включаем) BroadcastReceiver
                 registerReceiver(br, intFilt2);
+
 
                 br_wf = new BroadcastReceiver() {
                     // действия при получении сообщений
@@ -215,43 +217,51 @@ public class WifiListActivity
 
     public boolean onContextItemSelected(MenuItem item) {
         if (item.getItemId() == CM_ADD_ID) {
-            // получаем из пункта контекстного меню данные по пункту списка
-            AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item
-                    .getMenuInfo();
+            try {
+                // получаем из пункта контекстного меню данные по пункту списка
+                AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item
+                        .getMenuInfo();
 
-            String tmp_bssid = mWFList.get( item.getItemId()).get(lBSSID).toString();
-            AccessPoint tmp_obj = db.getByBssid(tmp_bssid);
-            if ( tmp_obj != null) {
+            db.getAllData();
+                String tmp_bssid = mWFList.get(acmi.position).get(lBSSID).toString();
+                AccessPoint tmp_obj_ex = db.getByBssid(tmp_bssid);
+                if (tmp_obj_ex != null) {
 
-                if (tmp_obj.getLevel() >= Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3))) {
-                    Toast.makeText(this, "This point already exist with better signal", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else {
-
-                    db.insertRec(mWFList.get(acmi.position).get(lBSSID).toString(),
-                            mWFList.get(acmi.position).get(lSSID).toString(),
-                            Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3)),
-                            mCurLoc.latitude,
-                            mCurLoc.longitude,
-                            mWFList.get(acmi.position).get(lENCRYPT).toString(),
-                            "U",
-                            new Date().getTime());
-                    return true;
+                    if (tmp_obj_ex.getLevel() >= Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3))) {
+                        Toast.makeText(this, tmp_obj_ex.getSSID() + " already exist with better signal", Toast.LENGTH_SHORT).show();
+                        return true;
+                    } else {
+                        db.insertRec(mWFList.get(acmi.position).get(lBSSID).toString(),
+                                mWFList.get(acmi.position).get(lSSID).toString(),
+                                Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3)),
+                                mCurLoc.latitude,
+                                mCurLoc.longitude,
+                                mWFList.get(acmi.position).get(lENCRYPT).toString(),
+                                "U",
+                                new Date().getTime());
+                        Toast.makeText(this, tmp_obj_ex.getSSID() + " was updated", Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
                 }
-            }
-            db.insertRec(mWFList.get(acmi.position).get(lBSSID).toString(),
-                    mWFList.get(acmi.position).get(lSSID).toString(),
-                    Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3)),
-                    mCurLoc.latitude,
-                    mCurLoc.longitude,
-                    mWFList.get(acmi.position).get(lENCRYPT).toString(),
-                    "U",
-                    new Date().getTime());
-            Toast.makeText(getApplicationContext(), mWFList.get(acmi.position).get(lSSID).toString()+ " was added",
-                    Toast.LENGTH_SHORT).show();
-            // получаем новый курсор с данными
+                db.insertRec(mWFList.get(acmi.position).get(lBSSID).toString(),
+                        mWFList.get(acmi.position).get(lSSID).toString(),
+                        Integer.parseInt(mWFList.get(acmi.position).get(lLEVEL).toString().substring(0, 3)),
+                        mCurLoc.latitude,
+                        mCurLoc.longitude,
+                        mWFList.get(acmi.position).get(lENCRYPT).toString(),
+                        "U",
+                        new Date().getTime());
+
+                Toast.makeText(getApplicationContext(), mWFList.get(acmi.position).get(lSSID).toString() + " was added",
+                        Toast.LENGTH_SHORT).show();
+                // получаем новый курсор с данными
 //            getSupportLoaderManager().getLoader(0).forceLoad();
-            return true;
+
+            }catch (NullPointerException NPE)
+            {
+                NPE.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Oops, error #2. Please, try again", Toast.LENGTH_SHORT).show();
+            }
         }
         return super.onContextItemSelected(item);
     }

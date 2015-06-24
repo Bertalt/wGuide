@@ -184,6 +184,7 @@ public class DB {
             getAllData();
             return getByBssid(bssid);
         }
+
         return null;
     }
 

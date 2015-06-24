@@ -31,6 +31,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -40,6 +42,9 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
+
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 
 public class MapsActivity extends ActionBarActivity
@@ -56,7 +61,8 @@ public class MapsActivity extends ActionBarActivity
              private ExecutorService mExecutorService;
              public static final String PARAM_LON = "Longitude";
              public static final String PARAM_LAT = "Latitude";
-             private LatLng mCurLoc;
+             public static LatLng mCurLoc;
+             public static int mSatCount;
              private LocationManager lm;
              private  GpsStatusListener GSL;
              private Handler handler;
@@ -65,6 +71,8 @@ public class MapsActivity extends ActionBarActivity
              private Double mLon;
              private boolean mServiceRunState = false;
              private Thread mServiceWithTimer;
+             private Circle mCircleActivity;
+             private float mAvaRadius;
              Timer myTimer; // Создаем таймер
     private Button bCurrentPos;
     private TextView tvStatCount;
@@ -103,7 +111,19 @@ public class MapsActivity extends ActionBarActivity
                 Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
                 if (mMarkerCurrentPos != null)
                     mMarkerCurrentPos.remove();
+
                 mMarkerCurrentPos =mMap.addMarker(newMarkerMyPosition(mCurLoc));
+                if (mCircleActivity != null && mCircleActivity.isVisible())
+                    mCircleActivity.remove();
+
+                if (mMap!= null)
+                    mCircleActivity = mMap.addCircle(new CircleOptions()
+                            .center(mCurLoc)
+                            .radius(mAvaRadius)
+                            .strokeColor(Color.LTGRAY)
+                            .strokeWidth(3)     // in pixels
+                    );
+
 
             }
         };
@@ -148,7 +168,7 @@ public class MapsActivity extends ActionBarActivity
         Log.d("LifeCycle", "onResume()");
         setUpMapIfNeeded();
         mLocationAccuracy = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false);
-
+        mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
         mMap.clear();
         new FillInMap(this, mMap).start();//наполнение карты маркерами wifi точек
 
@@ -175,6 +195,7 @@ public class MapsActivity extends ActionBarActivity
 
             if (!mServiceWithTimer.isAlive() && sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false)) //
             {
+                myTimer.cancel();
                 myTimer = new Timer();
                 mServiceWithTimer = new Thread(new RunServiceWithTimer());
                 mServiceWithTimer.start();
@@ -247,6 +268,7 @@ public class MapsActivity extends ActionBarActivity
         UImap.setZoomControlsEnabled(true);         // кнопки зума
 
 
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -287,6 +309,8 @@ public class MapsActivity extends ActionBarActivity
         if (id == R.id.action_update_map) {
             mMap.clear();
             new FillInMap(this, mMap).start();//наполнение карты маркерами wifi точек
+
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -313,11 +337,22 @@ public class MapsActivity extends ActionBarActivity
             {
                 mMarkerCurrentPos.remove();
                 mMarkerCurrentPos =_mMap.addMarker(newMarkerMyPosition(mCurLoc));
+
             }
+
+
+
 
         }
     }
 
+    private double getRadius(LatLng a, LatLng b)
+    {
+        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
+        double radius = sqrt(pow(AB.latitude,2) + pow(AB.longitude,2));
+        Log.d(TAG, "Radius = " + radius);
+        return radius;
+    }
     private MarkerOptions newMarkerMyPosition (LatLng mCurrentPosition)     //set up marker to current position
     {
         return new MarkerOptions()
@@ -366,6 +401,7 @@ public class MapsActivity extends ActionBarActivity
                              mTvStatCount.setText("" + satellitesInFix);
 
                              Intent intent = new Intent(WifiListActivity.BROADCAST_ACTION);
+                             mSatCount = satellitesInFix;
                              intent.putExtra(WifiListActivity.PARAM_SAT, satellitesInFix);
 
                              sendBroadcast(intent);

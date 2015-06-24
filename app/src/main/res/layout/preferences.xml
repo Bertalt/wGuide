@@ -48,8 +48,17 @@
             android:inputType="number"
             android:defaultValue="50"
             />
-
-
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/pref_wifi_title"
+        android:key="pref_key_maps">
+        <EditTextPreference
+            android:key="pref_key_map_ava_radius"
+            android:summary="@string/summary_map_ava_radius"
+            android:title="@string/title_map_ava_radius"
+            android:inputType="number"
+            android:defaultValue="1000"
+            />
+        </PreferenceCategory>
 </PreferenceScreen >
 

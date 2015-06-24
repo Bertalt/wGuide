@@ -60,4 +60,9 @@
     <string name="summary_wifi_min_signal"> The service of scanning will ignore signal lower than this. Attention! You should  input unsigned quantity.</string>
     <string name="title_wifi_auto_min_signal"> Minimum signal to automatic adding</string>
     <string name="summary_wifi_auto_min_signal"> The service of automatic adding in database will ignore signal lower than this. Attention! You should  input unsigned quantity.</string>
+
+    <!-- Preferences MAP-->
+    <string name="summary_map_ava_radius">Markers will be visible only in this radius</string>
+    <string name="title_map_ava_radius"> Available radius</string>
+    <string name="error_adding_db"> Oops, error #02. Please, try again</string>
 </resources>
