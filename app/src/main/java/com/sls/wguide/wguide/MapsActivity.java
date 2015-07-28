@@ -84,8 +84,6 @@ public class MapsActivity extends ActionBarActivity
         setContentView(R.layout.activity_maps);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
 
-        setUpMapIfNeeded();
-
         myTimer = new Timer();
         mServiceWithTimer = new Thread(new RunServiceWithTimer());
 
@@ -93,7 +91,7 @@ public class MapsActivity extends ActionBarActivity
 
         Log.d("LifeCycle", "onCreate()");
         bCurrentPos = (Button) findViewById(R.id.bCurrentPos);
-        //mSwitchMod = (Switch) findViewById(R.id.switch_search_mod);
+
         tvStatCount = (TextView) findViewById(R.id.tvStatCount);
 
         GSL =  new GpsStatusListener(tvStatCount);
@@ -124,7 +122,6 @@ public class MapsActivity extends ActionBarActivity
                             .strokeWidth(3)     // in pixels
                     );
 
-
             }
         };
         br_update_map = new BroadcastReceiver() {
@@ -141,12 +138,9 @@ public class MapsActivity extends ActionBarActivity
  */
         handler = new Handler(Looper.getMainLooper());
         lm.addGpsStatusListener(GSL);
-    /*
-     *
-     */
-    /*
+
             ////// Переодическое выполнение сервиса сканирования wireless
-*/
+
         // создаем фильтр для BroadcastReceiver
         IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
         // регистрируем (включаем) BroadcastReceiver
@@ -169,7 +163,9 @@ public class MapsActivity extends ActionBarActivity
         setUpMapIfNeeded();
         mLocationAccuracy = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false);
         mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
+        if (mMap != null)
         mMap.clear();
+
         new FillInMap(this, mMap).start();//наполнение карты маркерами wifi точек
 
 
@@ -227,15 +223,17 @@ public class MapsActivity extends ActionBarActivity
         stopService(new Intent(this, WiFiviser.class));
       //  mScannerActiveted = false;
     }
-    private void setUpMapIfNeeded() {
+    private boolean setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
             // Try to obtain the map from the SupportMapFragment.
             mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
                     .getMap();
-            if (mMap == null)
-                Log.e(TAG, "Can not find map");
 
+            if (mMap == null) {
+                Log.e(TAG, "Can not find map");
+                return false;
+            }
 
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
@@ -252,6 +250,7 @@ public class MapsActivity extends ActionBarActivity
                 }
             });
 
+        return true;
 
     }
     private void setUpMap() {
@@ -324,10 +323,6 @@ public class MapsActivity extends ActionBarActivity
             Toast.makeText(this, "map = null", Toast.LENGTH_SHORT).show();
     }
 
-
-
-
-
     private void goCurrentLocation (GoogleMap _mMap)  //move camera on current user's coordinates
     {
         if (_mMap != null && mCurLoc != null)
@@ -339,10 +334,6 @@ public class MapsActivity extends ActionBarActivity
                 mMarkerCurrentPos =_mMap.addMarker(newMarkerMyPosition(mCurLoc));
 
             }
-
-
-
-
         }
     }
 
