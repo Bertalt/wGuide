@@ -1,5 +1,6 @@
 package com.sls.wguide.wguide;
 
+import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -160,7 +161,9 @@ public class MapsActivity extends ActionBarActivity
     protected void onResume() {
         super.onResume();
         Log.d("LifeCycle", "onResume()");
-        setUpMapIfNeeded();
+       setUpMapIfNeeded();
+
+
         mLocationAccuracy = sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false);
         mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
         if (mMap != null)
@@ -178,9 +181,7 @@ public class MapsActivity extends ActionBarActivity
         goCurrentLocation(mMap);
         else
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
-       // mSwitchMod.setChecked(mLocationAccuracy);
-
-
+        //showDialog();
     }
 
 
@@ -442,6 +443,12 @@ public class MapsActivity extends ActionBarActivity
                      }
                      }
                  }
+
+             void showDialog() {
+                 // Create the fragment and show it as a dialog.
+                 DialogFragment newFragment = DialogFragmentWaitMap.newInstance();
+                 newFragment.show(getFragmentManager(), "Loading");
+             }
 
              }
 

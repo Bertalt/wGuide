@@ -6,8 +6,10 @@ package com.sls.wguide.wguide;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -26,6 +28,11 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Cursor> {
 
     private static final int CM_DELETE_ID = 1;
@@ -38,11 +45,17 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private ApAdapter scAdapter;
     private LinearLayout mEmptyLayout;
     private final String TAG = "open_db";
+    private float mAvaRadius;
+    private SharedPreferences sharedPref;
+    private double mRadiusInLanLng = 0.00000960865339; // = 1 m
+
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_db_main);
 
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
 
         linearLayout = (LinearLayout) findViewById(R.id.linLayout_progress);
 
@@ -173,5 +186,20 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
             return cursor;
         }
 
+    }
+    private boolean getVector ( LatLng a ,  LatLng b)
+    {
+        if (a == null)
+            return true;
+        if (b == null)
+            return false;
+
+        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
+        double radius = sqrt(pow(AB.latitude,2) + pow(AB.longitude,2));
+        Log.d(TAG, "Radius = " + radius);
+        if (radius > mRadiusInLanLng*mAvaRadius)
+            return false;
+
+        return true;
     }
 }
