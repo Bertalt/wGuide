@@ -6,12 +6,13 @@ public class AccessPoint{
 
 
 
-    public AccessPoint (String SSID, String BSSID, int LEVEL, String Encrypt, long TIME)
+    public AccessPoint (String SSID, String BSSID, int LEVEL, String Encrypt, int amountSat, long TIME)
     {
         setSSID(SSID);
         setBSSID(BSSID);
         setLevel(LEVEL);
         setEncrypt(Encrypt);
+        setAmountSat(amountSat);
         setTime(TIME);
     }
 
@@ -113,6 +114,15 @@ public class AccessPoint{
         this.time = time;
     }
 
+    public int getAmountSat() {
+        return amountSat;
+    }
+
+    public void setAmountSat(int amountSat) {
+        this.amountSat = amountSat;
+    }
+
+    private int amountSat;
     private double lat;
     private double lon;
     private String encrypt;

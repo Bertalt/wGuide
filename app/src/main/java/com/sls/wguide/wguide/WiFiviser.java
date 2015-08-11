@@ -11,7 +11,6 @@ import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -19,7 +18,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Sls on 08.06.2015.
@@ -145,6 +143,7 @@ public class WiFiviser extends Service {
                                             mCurLoc.longitude,
                                             util.SecurTypeWiFi(scan.capabilities),
                                             "S",
+                                            mSatCount,
                                             new Date().getTime());
                                 } else {
                                     if (tmp.getLevel() < scan.level)
@@ -155,6 +154,7 @@ public class WiFiviser extends Service {
                                                 mCurLoc.longitude,
                                                 util.SecurTypeWiFi(scan.capabilities),
                                                 "S",
+                                                mSatCount,
                                                 new Date().getTime());
                                 }
                             }

@@ -12,14 +12,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 public class DB {
 
     private static final String DB_NAME = "dbAccessPoints";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
     public static final String ID = "_id";
     public static final String SSID = "ssid";
     public static final String BSSID = "bssid";
@@ -29,6 +28,7 @@ public class DB {
     public static final String ENCRYPT = "encrypt";
     public static final String WHO_ADD= "who_add";
     public static final String TIME = "time";
+    public static final String AMOUNT_SAT = "amount_sat";
     public static final String BROADCAST_UPDATE_DB = "com.sls.wguide.updated_db";
 
     private final String TAG = "database";
@@ -50,7 +50,13 @@ public class DB {
                     + LONGITUDE + " real,"
                     + ENCRYPT + " text,"
                     + WHO_ADD + " text,"
+                    + AMOUNT_SAT + " int,"
                     + TIME + " int);";
+
+    private static final String ALTER_TABLE =
+            "alter table "+TABLE_NAME+" add column "+ AMOUNT_SAT + " int;";
+
+    private static final String DROP_TABLE = "drop table "+DB_NAME+"."+TABLE_NAME+";";
 
     private final Context mCtx;
 
@@ -58,13 +64,12 @@ public class DB {
     private DBHelper mDBHelper;
     private SQLiteDatabase mDB;
 
-    public DB(Context ctx) {
-        mCtx = ctx;
-    }
+    public DB(Context ctx) {        mCtx = ctx;             }
 
     // открыть подключение
     public void open() {
         mDBHelper = new DBHelper(mCtx, DB_NAME, null, DB_VERSION);
+
         mDB = mDBHelper.getWritableDatabase();
     }
 
@@ -90,7 +95,9 @@ public class DB {
                 int lonColIndex = c.getColumnIndex(LONGITUDE);
                 int encryptColIndex = c.getColumnIndex(ENCRYPT);
                 int whoAddColIndex = c.getColumnIndex(WHO_ADD);
+                int amountOfSatColIndex = c.getColumnIndex(AMOUNT_SAT);
                 int timeColIndex = c.getColumnIndex(TIME);
+
 
                 do {
                     // получаем значения по номерам столбцов в отдельный объект
@@ -103,6 +110,7 @@ public class DB {
                     mAp.setLat(c.getDouble(latColIndex));//double
                     mAp.setLon(c.getDouble(lonColIndex));//double
                     mAp.setEncrypt(c.getString(encryptColIndex));//string
+                    mAp.setAmountSat(c.getShort(amountOfSatColIndex));
                     mAp.setWho_add(c.getString(whoAddColIndex));
                     mAp.setTime(c.getLong(timeColIndex));
 
@@ -188,7 +196,8 @@ public class DB {
         return null;
     }
 
-    public boolean insertRec (String bssid, String ssid, int level, double lat, double lon, String encrypt, String who_add, long time) {
+    public boolean insertRec (String bssid, String ssid, int level, double lat, double lon, String encrypt, String who_add,
+                              int amountSat, long time) {
     open();
  try {
      ContentValues cv = new ContentValues();
@@ -199,6 +208,7 @@ public class DB {
      cv.put(LONGITUDE, lon);
      cv.put(WHO_ADD, who_add);
      cv.put(ENCRYPT, encrypt);
+     cv.put(AMOUNT_SAT, amountSat);
      cv.put(TIME, time);
 
      if (getByBssid(bssid) != null) {
@@ -218,6 +228,7 @@ public class DB {
      mAp.setLon(lon);    //double
      mAp.setEncrypt(encrypt);   //string
      mAp.setWho_add(who_add);
+     mAp.setAmountSat(amountSat);
      mAp.setTime(time);
 
      //добавляем объект в список объектов
@@ -265,6 +276,7 @@ close();
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL(ALTER_TABLE);
         }
     }
 

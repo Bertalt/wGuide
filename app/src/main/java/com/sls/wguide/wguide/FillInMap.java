@@ -53,6 +53,7 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
     {
         this.context = context;
         db = new DB(context);
+
         mMap = Map;
         mMarkerList = new ArrayList<>();
         mMap.setOnMarkerDragListener(this);
@@ -175,6 +176,7 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                     marker.getPosition().longitude,
                     tmp.getEncrypt(),
                     tmp.getWho_add(),
+                   tmp.getAmountSat(),
                     new Date().getTime()))
                Toast.makeText(context, tmp.getSSID()+ " location changed ", Toast.LENGTH_SHORT).show();
 

@@ -238,6 +238,7 @@ public class WifiListActivity
                                 mCurLoc.longitude,
                                 mWFList.get(acmi.position).get(lENCRYPT).toString(),
                                 "U",
+                                mSatCount,
                                 new Date().getTime());
                         Toast.makeText(this, tmp_obj_ex.getSSID() + " was updated", Toast.LENGTH_SHORT).show();
                         return true;
@@ -250,6 +251,7 @@ public class WifiListActivity
                         mCurLoc.longitude,
                         mWFList.get(acmi.position).get(lENCRYPT).toString(),
                         "U",
+                        mSatCount,
                         new Date().getTime());
 
                 Toast.makeText(getApplicationContext(), mWFList.get(acmi.position).get(lSSID).toString() + " was added",

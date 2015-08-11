@@ -21,7 +21,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,8 +36,6 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.android.clustering.ClusterItem;
-import com.google.maps.android.clustering.ClusterManager;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -352,7 +349,7 @@ public class MapsActivity extends ActionBarActivity
                 .title("I'm here!")
                 .icon(BitmapDescriptorFactory
                         .fromBitmap(BitmapFactory
-                                .decodeResource(this.getResources(), R.mipmap.ic_launcher)))
+                                .decodeResource(this.getResources(), R.mipmap.ic_loc)))
                 .draggable(true);
     }
 

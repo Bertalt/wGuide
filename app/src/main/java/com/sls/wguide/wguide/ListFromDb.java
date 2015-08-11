@@ -17,15 +17,12 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -47,6 +44,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private final String TAG = "open_db";
     private float mAvaRadius;
     private SharedPreferences sharedPref;
+    private boolean mOk = true;
     private double mRadiusInLanLng = 0.00000960865339; // = 1 m
 
     /** Called when the activity is first created. */
@@ -140,7 +138,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
             }
             else
-                Toast.makeText(this, "Cannot find selected acceess point", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Cannot find selected access point", Toast.LENGTH_SHORT).show();
         }
 
         return super.onContextItemSelected(item);
@@ -159,12 +157,15 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
+        if (cursor.getCount() == 0)
+        {
+            Toast.makeText(getApplicationContext(), getResources().getText(R.string.toast_empty_database), Toast.LENGTH_SHORT).show();
+            super.finish();
+        }
         if  (linearLayout != null)
             linearLayout.removeAllViews();
         scAdapter.swapCursor(cursor);
-        if (cursor.getCount() == 0)
-        Toast.makeText(getApplicationContext(), getResources().getText(R.string.toast_empty_database), Toast.LENGTH_SHORT).show();
+
     }
 
     @Override

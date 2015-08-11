@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        wguide {
+            keyAlias 'wguide'
+            keyPassword '6991slavon'
+            storeFile file('C:/Users/Sls/.android/wguide.keystore')
+            storePassword '322849'
+        }
+    }
     compileSdkVersion 22
     buildToolsVersion "23.0.0 rc2"
     compileOptions.encoding = 'windows-1251'
@@ -15,6 +23,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.wguide
+        }
+        debug {
+            signingConfig signingConfigs.wguide
         }
     }
 }
