@@ -83,31 +83,22 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_height="wrap_content"
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/refresh"
         android:layout_width="match_parent"
-        android:id="@+id/linLayout_progress"
+        android:layout_height="match_parent"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context="com.sls.wguide.wguide.app.MapsActivity">
+
         >
-        <ProgressBar
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@android:style/Widget.ProgressBar.Small.Inverse"
-            android:layout_marginTop="10dp"
-           />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:id="@+id/pbTitle"
-            android:text="@string/header_search" />
-    </LinearLayout>
-
 <ListView
     android:id="@+id/listView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android">
 </ListView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+
 </LinearLayout>

@@ -1,6 +1,5 @@
 package com.sls.wguide.wguide;
 
-import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -27,15 +27,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created on 08.05.2015.
  */
 public class WifiListActivity
-        extends FragmentActivity {
+        extends FragmentActivity  implements SwipeRefreshLayout.OnRefreshListener{
 
     public static final String PARAM_SSID = "ssid";
     public static final String PARAM_BSSID = "bssid";
@@ -74,7 +72,10 @@ public class WifiListActivity
     private static final int CM_ADD_ID = 1;
     private SharedPreferences sharedPref;
     private Timer myTimer;
-    SimpleAdapter adapter;
+    private SimpleAdapter adapter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -83,11 +84,13 @@ public class WifiListActivity
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         db = new DB(this);
         db.open();
+        /*
         progressLayout = (LinearLayout) findViewById(R.id.linLayout_progress);
         pbTitle = (TextView) findViewById(R.id.pbTitle);
         pbTitle.setText(getResources().getText(R.string.header_search)                      // part title from resources
-                +" -"+  sharedPref.getString( SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")// from references
+                + " -" + sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")// from references
                 + "dB...");
+                */
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -98,7 +101,8 @@ public class WifiListActivity
         startService(new Intent(this, WiFiviser.class));
 
         // создаем массив списков
-            mWFList = new ArrayList<HashMap<String, Object>>();
+        mWFList = new ArrayList<HashMap<String, Object>>();
+
         listView = (ListView) findViewById(R.id.listView);
         listView.setEmptyView( findViewById( R.id.empty_list_view ) );
 
@@ -107,110 +111,12 @@ public class WifiListActivity
                 new int[]{R.id.tvLevel_wf, R.id.tvSSID_wf, R.id.tvBSSID_wf, R.id.tvEncrypt_wf});
 
         listView.setAdapter(adapter);
-        mExecutorService = Executors.newFixedThreadPool(1);
-        mCountWF = 0;
-       // mAPList = new ArrayList<AccessPoint>();
-        // создаем BroadcastReceiver
-        mExecutorService.submit(new Runnable() {
-            @Override
-            public void run() {
 
-                // создаем BroadcastReceiver
-                br_loc = new BroadcastReceiver() {
-                    // действия при получении сообщений
-                    public void onReceive(Context context, Intent intent) {
-                        double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
-                        double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
-                        mCurLoc = new LatLng(mLatitude, mLongitude);
-                        Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
-
-                    }
-                };
-
-                // создаем фильтр для BroadcastReceiver
-                IntentFilter intFilt1 = new IntentFilter(BROADCAST_ACTION_LOC);
-                // регистрируем (включаем) BroadcastReceiver
-                registerReceiver(br_loc, intFilt1);
-
-                br = new BroadcastReceiver() {
-                    // действия при получении сообщений
-                    public void onReceive(Context context, Intent intent) {
-
-                        mSatCount = intent.getIntExtra(PARAM_SAT, 0);
-
-                        Log.d(TAG, "onReceive: satellites =  " + mSatCount);
-                    }
-                };
-                // создаем фильтр для BroadcastReceiver
-                IntentFilter intFilt2 = new IntentFilter(BROADCAST_ACTION);
-                // регистрируем (включаем) BroadcastReceiver
-                registerReceiver(br, intFilt2);
-
-
-                br_wf = new BroadcastReceiver() {
-                    // действия при получении сообщений
-                    public void onReceive(Context context, Intent intent) {
-
-                        mSSID = intent.getStringExtra(PARAM_SSID);
-                        mBSSID = intent.getStringExtra(PARAM_BSSID);
-                        mLEVEL = intent.getIntExtra(PARAM_LEVEL, 0);
-                        mEncrypt = intent.getStringExtra(PARAM_ECRYPT);
-                        mCountWF = intent.getIntExtra(PARAM_COUNT,0);
-
-                        Log.d(TAG, "onReceive: SSID =  " + mSSID);
-                        Log.d(TAG, "onReceive: BSSID =  " + mBSSID);
-                        Log.d(TAG, "onReceive: Level=  " + mLEVEL);
-                        Log.d(TAG, "onReceive: Encrypt =  " + mEncrypt);
-
-                        if (mWFList.size() == 0)
-                        {
-                            HashMap<String, Object> hm;
-                            hm = new HashMap<>();
-                            hm.put(lLEVEL, mLEVEL+"dB"); //
-                            hm.put(lSSID, mSSID); //
-                            hm.put(lBSSID, mBSSID); //
-                            hm.put(lENCRYPT,mEncrypt);
-                            mWFList.add(hm);
-                            Log.d("inputing", "Input " + mBSSID + " in list");
-                            adapter.notifyDataSetChanged();
-                    }
-                        if(mWFList.size() !=  mCountWF)
-                        for (int i = 0; i<mWFList.size(); i++) {
-                            if (mWFList.get(i).get(lBSSID).toString().equalsIgnoreCase(mBSSID)) {
-                                Log.d("inputing", mSSID + " already exist in list");
-                                return;
-                            }
-                        }
-                          else
-                        {
-                            if(progressLayout != null)
-                                progressLayout.removeAllViews();
-                            return;
-                        }
-
-                        HashMap<String, Object> hm;
-                        hm = new HashMap<>();
-                        hm.put(lLEVEL, mLEVEL+"dB"); //
-                        hm.put(lSSID, mSSID); //
-                        hm.put(lBSSID, mBSSID); //
-                        hm.put(lENCRYPT, mEncrypt);
-                        mWFList.add(hm);
-                        adapter.notifyDataSetChanged();
-                                //mAPList.add(new AccessPoint(mSSID, mBSSID, mLEVEL, mEncrypt, new Date().getTime()));
-                                Log.d("inputing", "Input " + mSSID + " in list");
-                                Log.d("myList", "list size = " + mWFList.size());
-                    }
-                };
-                IntentFilter intFilt_wf = new IntentFilter(BROADCAST_ACTION_WF);
-                registerReceiver(br_wf, intFilt_wf);
-
-            }
-        });
 
                  fm = getFragmentManager();
 
         registerForContextMenu(listView);
-
+/*
         myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
             @Override
@@ -218,7 +124,13 @@ public class WifiListActivity
                 mWFList.clear();
             }
         }, 0, 10 * 1000);
-
+*/
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
              }
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenu.ContextMenuInfo menuInfo) {
@@ -283,33 +195,144 @@ public class WifiListActivity
     public void onDestroy()
     {
         super.onDestroy();
-        unregisterReceiver(br);
-        unregisterReceiver(br_wf);
-        unregisterReceiver(br_loc);
+
         db.close();
+    }
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+        try {
+            unregisterReceiver(br_loc);
+            unregisterReceiver(br);
+            unregisterReceiver(br_wf);
+        }
+        catch (IllegalArgumentException ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        adapter.notifyDataSetChanged();
+        onRefresh();
+       // adapter.notifyDataSetChanged();
     }
 
-             public static void showDialog() {
+    @Override
+    public void onRefresh() {
 
-                 DialogFragment newFragment = AlertDialogSatellites.newInstance(
-                         R.string.alert_dialog_two_buttons_title, mSatCount);
-                 newFragment.show(fm, "dialog");
-             }
+        mSwipeRefreshLayout.setRefreshing(true);
+        mWFList.clear();
+        adapter.notifyDataSetChanged();
+        onApListener();
 
-             public static void doPositiveClick() {
-                 // Do stuff here.
-                 Log.i("FragmentAlertDialog", "Positive click!");
-             }
+    }
 
-             public static void doNegativeClick() {
-                 // Do stuff here.
-                 Log.i("FragmentAlertDialog", "Negative click!");
-             }
+
+    private void onApListener ()
+    {
+        mCountWF = 0;
+                // создаем BroadcastReceiver
+                br_loc = new BroadcastReceiver() {
+                    // действия при получении сообщений
+                    public void onReceive(Context context, Intent intent) {
+                        double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
+                        double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
+                        mCurLoc = new LatLng(mLatitude, mLongitude);
+                        Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
+
+                    }
+                };
+
+                // создаем фильтр для BroadcastReceiver
+                IntentFilter intFilt1 = new IntentFilter(BROADCAST_ACTION_LOC);
+                // регистрируем (включаем) BroadcastReceiver
+                registerReceiver(br_loc, intFilt1);
+
+                br = new BroadcastReceiver() {
+                    // действия при получении сообщений
+                    public void onReceive(Context context, Intent intent) {
+
+                        mSatCount = intent.getIntExtra(PARAM_SAT, 0);
+
+                        Log.d(TAG, "onReceive: satellites =  " + mSatCount);
+                    }
+                };
+                // создаем фильтр для BroadcastReceiver
+                IntentFilter intFilt2 = new IntentFilter(BROADCAST_ACTION);
+                // регистрируем (включаем) BroadcastReceiver
+                registerReceiver(br, intFilt2);
+
+
+                br_wf = new BroadcastReceiver() {
+                    // действия при получении сообщений
+                    public void onReceive(Context context, Intent intent) {
+
+                        mSSID = intent.getStringExtra(PARAM_SSID);
+                        mBSSID = intent.getStringExtra(PARAM_BSSID);
+                        mLEVEL = intent.getIntExtra(PARAM_LEVEL, 0);
+                        mEncrypt = intent.getStringExtra(PARAM_ECRYPT);
+                        mCountWF = intent.getIntExtra(PARAM_COUNT, 0);
+
+                        Log.d(TAG, "onReceive: SSID =  " + mSSID);
+                        Log.d(TAG, "onReceive: BSSID =  " + mBSSID);
+                        Log.d(TAG, "onReceive: Level=  " + mLEVEL);
+                        Log.d(TAG, "onReceive: Encrypt =  " + mEncrypt);
+
+                        if (mWFList.size() == 0) {
+                            HashMap<String, Object> hm;
+                            hm = new HashMap<>();
+                            hm.put(lLEVEL, mLEVEL + "dB"); //
+                            hm.put(lSSID, mSSID); //
+                            hm.put(lBSSID, mBSSID); //
+                            hm.put(lENCRYPT, mEncrypt);
+                            mWFList.add(hm);
+                            Log.d("inputing", "Input " + mBSSID + " in list");
+                            adapter.notifyDataSetChanged();
+                        }
+                        if (mWFList.size() < mCountWF)
+                            for (int i = 0; i < mWFList.size(); i++) {
+                                if (mWFList.get(i).get(lBSSID).toString().equalsIgnoreCase(mBSSID)) {
+                                    Log.d("inputing", mSSID + " already exist in list");
+                                    return;
+                                }
+                            }
+                        else {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Log.d("WF1", "GONE");
+                            unregisterReceiver(br_loc);
+                           unregisterReceiver(br);
+                           unregisterReceiver(br_wf);
+                           // mExecutorService.shutdownNow();
+                           // Thread.currentThread().interrupt();
+                            return;
+                        }
+
+                        HashMap<String, Object> hm;
+                        hm = new HashMap<>();
+                        hm.put(lLEVEL, mLEVEL + "dB"); //
+                        hm.put(lSSID, mSSID); //
+                        hm.put(lBSSID, mBSSID); //
+                        hm.put(lENCRYPT, mEncrypt);
+                        mWFList.add(hm);
+                        adapter.notifyDataSetChanged();
+                        //mAPList.add(new AccessPoint(mSSID, mBSSID, mLEVEL, mEncrypt, new Date().getTime()));
+                        Log.d("inputing", "Input " + mSSID + " in list");
+                        Log.d("myList", "list size = " + mWFList.size());
+                    }
+                };
+                IntentFilter intFilt_wf = new IntentFilter(BROADCAST_ACTION_WF);
+                registerReceiver(br_wf, intFilt_wf);
+
+
+
+
+       //     }
+      //  });
+
+
+    }
     }

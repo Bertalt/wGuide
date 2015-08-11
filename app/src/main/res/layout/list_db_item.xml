@@ -44,7 +44,7 @@
             android:paddingRight="8dp"
             android:maxLines="1"
             android:textColor="#ff007aff"
-            android:text="level"
+
             android:ellipsize="end"
             android:layout_weight="0.5" />
 
@@ -64,7 +64,7 @@
                 android:paddingLeft="4dp"
                 android:textColor="#d1000245"
                 android:paddingRight="4dp"
-                android:text="EXAMPLE"/>
+                />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -74,7 +74,7 @@
                 android:paddingLeft="4dp"
                 android:textColor="#d1000245"
                 android:paddingRight="4dp"
-                android:text="nn:zz:qq:ww:ee:tt"/>
+               />
         </LinearLayout>
         <TextView
             android:layout_width="wrap_content"
@@ -84,7 +84,7 @@
             android:textColor="#ff007aff"
             android:paddingRight="4dp"
             android:layout_weight="0.5"
-            android:text="WPA2"
+
             android:gravity="center" />
 
 
@@ -94,7 +94,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/who_add"
         android:textSize="20dp"
-        android:text="S"
+
         android:padding="4dp"
         android:background="#29ff004e"
         android:layout_alignParentTop="true"
