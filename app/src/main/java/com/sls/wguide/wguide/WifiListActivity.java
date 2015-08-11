@@ -26,6 +26,8 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -71,6 +73,7 @@ public class WifiListActivity
     private TextView pbTitle;
     private static final int CM_ADD_ID = 1;
     private SharedPreferences sharedPref;
+    private Timer myTimer;
     SimpleAdapter adapter;
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -207,6 +210,14 @@ public class WifiListActivity
                  fm = getFragmentManager();
 
         registerForContextMenu(listView);
+
+        myTimer = new Timer();
+        myTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                mWFList.clear();
+            }
+        }, 0, 10 * 1000);
 
              }
     public void onCreateContextMenu(ContextMenu menu, View v,

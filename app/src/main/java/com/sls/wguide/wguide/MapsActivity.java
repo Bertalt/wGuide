@@ -71,7 +71,7 @@ public class MapsActivity extends ActionBarActivity
              private Thread mServiceWithTimer;
              private Circle mCircleActivity;
              private float mAvaRadius;
-             Timer myTimer; // Создаем таймер
+             Timer myTimer;
     private Button bCurrentPos;
     private TextView tvStatCount;
          //    private boolean mScannerActiveted = false;
