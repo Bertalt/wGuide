@@ -38,6 +38,7 @@
     <string name="headerSSID">SSID</string>
     <string name="headerBSSID">BSSID</string>
     <string name="headerEncrypt">Encryption </string>
+    <string name="headerRadius"> In radius: </string>
 
     <!-- Preferences GPS-->
     <string name="title_count_gps"> Number of satellites</string>

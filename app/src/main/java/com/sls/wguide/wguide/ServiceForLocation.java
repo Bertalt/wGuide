@@ -15,6 +15,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.concurrent.ExecutorService;
 
@@ -38,7 +39,7 @@ public class ServiceForLocation extends Service
     private LocationRequest mLocationRequest;
     private PendingResult<Status> mUpdateLocStatus;
     private boolean mLocationAccuracy =false;
-
+    public static LatLng mCurLoc;
 
     public void onCreate() {
 
@@ -181,8 +182,7 @@ public class ServiceForLocation extends Service
             Log.d("POS", "Lat: " + location.getLatitude() + " Lon: " + location.getLongitude());
 
             Intent intent = new Intent(MapsActivity.BROADCAST_ACTION);
-            intent.putExtra(MapsActivity.PARAM_LON, location.getLongitude());
-            intent.putExtra(MapsActivity.PARAM_LAT, location.getLatitude());
+            mCurLoc = new LatLng(location.getLatitude(), location.getLongitude());
 
             sendBroadcast(intent);
         }

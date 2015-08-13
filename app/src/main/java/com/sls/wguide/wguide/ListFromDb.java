@@ -4,6 +4,7 @@ package com.sls.wguide.wguide;
  * Created by Sls on 21.05.2015.
  */
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -27,10 +29,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
-
-public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Cursor> {
+public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     private static final int CM_DELETE_ID = 1;
     private static final int CM_OPEN_ID = 2;
@@ -43,6 +42,10 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private final String TAG = "open_db";
     private float mAvaRadius;
     private SharedPreferences sharedPref;
+    private BroadcastReceiver br;
+    LatLng mCurLoc;
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     private double mRadiusInLanLng = 0.00000960865339; // = 1 m
 
     /** Called when the activity is first created. */
@@ -57,8 +60,6 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
         LayoutInflater inflater = getLayoutInflater();
         layerPbLoad = inflater.inflate(R.layout.load_layout, null);
-
-
 
         // открываем подключение к БД
         db = new DB(this);
@@ -81,17 +82,16 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         // создаем лоадер для чтения данных
         getSupportLoaderManager().initLoader(0, null, this);
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_db);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
     }
 
-    // обработка нажатия кнопки
-    /*
-    public void onButtonClick(View view) {
-        // добавляем запись
-        db.addRec("sometext " + (scAdapter.getCount() + 1), R.drawable.ic_launcher);
-        // получаем новый курсор с данными
-        getSupportLoaderManager().getLoader(0).forceLoad();
-    }
-*/
+
     public void onCreateContextMenu(ContextMenu menu, View v,
                                     ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -141,6 +141,11 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
         return super.onContextItemSelected(item);
     }
+    protected void onResume()
+    {
+        super.onResume();
+
+    }
 
     protected void onDestroy() {
         super.onDestroy();
@@ -170,6 +175,13 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     public void onLoaderReset(Loader<Cursor> loader) {
     }
 
+    @Override
+    public void onRefresh() {
+
+        mSwipeRefreshLayout.setRefreshing(true);
+
+    }
+
     static class MyCursorLoader extends CursorLoader {
 
         DB db;
@@ -181,24 +193,11 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
         @Override
         public Cursor loadInBackground() {
-            Cursor cursor = db.getAllData();
+
+
+            Cursor cursor = db.getAllData(MapsActivity.mCurLoc);
             return cursor;
         }
 
-    }
-    private boolean getVector ( LatLng a ,  LatLng b)
-    {
-        if (a == null)
-            return true;
-        if (b == null)
-            return false;
-
-        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
-        double radius = sqrt(pow(AB.latitude,2) + pow(AB.longitude,2));
-        Log.d(TAG, "Radius = " + radius);
-        if (radius > mRadiusInLanLng*mAvaRadius)
-            return false;
-
-        return true;
     }
 }

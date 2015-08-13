@@ -38,7 +38,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -48,16 +47,13 @@ public class MapsActivity extends ActionBarActivity
          {
              private GoogleMap mMap; // Might be null if Google Play services APK (GPsA) is not available
     private Marker mMarkerCurrentPos;
-   // private Switch mSwitchMod  =null;
+
     private boolean mLocationAccuracy = false;
     public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast";
     private BroadcastReceiver br;
     private BroadcastReceiver br_update_map;
     private static final String TAG = "Map";
-             // Declare a variable for the cluster manager.
-             private ExecutorService mExecutorService;
-             public static final String PARAM_LON = "Longitude";
-             public static final String PARAM_LAT = "Latitude";
+
              public static LatLng mCurLoc;
              public static int mSatCount;
              private LocationManager lm;
@@ -100,10 +96,9 @@ public class MapsActivity extends ActionBarActivity
         br = new BroadcastReceiver() {
             // действия при получении сообщений
             public void onReceive(Context context, Intent intent) {
-                double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
-                double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
-                mCurLoc = new LatLng(mLatitude, mLongitude);
-                Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
+
+                mCurLoc = ServiceForLocation.mCurLoc;
+                Log.d(TAG, "onReceive new location: Lat = " + mCurLoc.latitude + ", Lon = " + mCurLoc.longitude);
                 if (mMarkerCurrentPos != null)
                     mMarkerCurrentPos.remove();
 
@@ -203,8 +198,6 @@ public class MapsActivity extends ActionBarActivity
     protected void onStop() {
         super.onStop();
         Log.d("LifeCycle", "onStop()");
-        if (mExecutorService != null)
-            mExecutorService.shutdownNow();
 
     }
 
@@ -354,51 +347,7 @@ public class MapsActivity extends ActionBarActivity
 
 
 
-             public class GpsStatusListener implements  android.location.GpsStatus.Listener
-             {
 
-                 TextView mTvStatCount;
-                 public GpsStatusListener (TextView mTvStatCount)
-                 {
-                    this.mTvStatCount = mTvStatCount;
-                 }
-
-                 @Override
-                 public void onGpsStatusChanged(int event) {
-                     handler.post(new Runnable() {
-                         public void run() {
-
-                             int satellites = 0;
-                             int satellitesInFix = 0;
-                             int timetofix = lm.getGpsStatus(null).getTimeToFirstFix();
-                             Log.i(TAG, "Time to first fix = " + String.valueOf(timetofix)); //время на подключение к достат. кол-ву спутников
-
-                             for (GpsSatellite sat : lm.getGpsStatus(null).getSatellites()) {
-                                 if (sat.usedInFix()) {
-                                     satellitesInFix++;     //подсчет кол-ва спутников, которые учавствуют в
-                                 }
-                                 satellites++;
-                             }
-                             Log.i(TAG, String.valueOf(satellites) + " Used In Last Fix (" + satellitesInFix + ")");
-
-                             if (satellitesInFix < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
-                                 mTvStatCount.setTextColor(Color.RED);
-                             else
-                                 mTvStatCount.setTextColor(Color.GREEN);
-
-                             mTvStatCount.setText("" + satellitesInFix);
-
-                             Intent intent = new Intent(WifiListActivity.BROADCAST_ACTION);
-                             mSatCount = satellitesInFix;
-                             intent.putExtra(WifiListActivity.PARAM_SAT, satellitesInFix);
-
-                             sendBroadcast(intent);
-                         }
-                     });
-
-                          }
-
-                      }
 
 
                      boolean doubleBackToExitPressedOnce = false;
@@ -439,5 +388,46 @@ public class MapsActivity extends ActionBarActivity
                      }
                      }
                  }
+
+             public class GpsStatusListener implements  android.location.GpsStatus.Listener
+             {
+
+                 TextView mTvStatCount;
+                 public GpsStatusListener (TextView mTvStatCount)
+                 {
+                     this.mTvStatCount = mTvStatCount;
+                 }
+
+                 @Override
+                 public void onGpsStatusChanged(int event) {
+                     handler.post(new Runnable() {
+                         public void run() {
+
+                             int satellites = 0;
+                             int satellitesInFix = 0;
+                             int timetofix = lm.getGpsStatus(null).getTimeToFirstFix();
+                            // Log.i(TAG, "Time to first fix = " + String.valueOf(timetofix)); //время на подключение к достат. кол-ву спутников
+
+                             for (GpsSatellite sat : lm.getGpsStatus(null).getSatellites()) {
+                                 if (sat.usedInFix()) {
+                                     satellitesInFix++;     //подсчет кол-ва спутников, которые учавствуют в
+                                 }
+                                 satellites++;
+                             }
+                           //  Log.i(TAG, String.valueOf(satellites) + " Used In Last Fix (" + satellitesInFix + ")");
+
+                             if (satellitesInFix < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
+                                 mTvStatCount.setTextColor(Color.RED);
+                             else
+                                 mTvStatCount.setTextColor(Color.GREEN);
+
+                             mTvStatCount.setText("" + satellitesInFix);
+                             mSatCount = satellitesInFix;
+                         }
+                     });
+
+                 }
+
+             }
              }
 

@@ -28,8 +28,8 @@ public class WiFiviser extends Service {
     private ExecutorService es;
     private ExecutorService es2;
     private BroadcastReceiver br;
-    private BroadcastReceiver br_sat;
-    public static final String PARAM_SAT  = "satellites";
+
+
     public static final String PARAM_LON = "Longitude";
     public static final String PARAM_LAT = "Latitude";
     public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast";
@@ -46,7 +46,6 @@ public class WiFiviser extends Service {
 
         super.onCreate();
         es = Executors.newFixedThreadPool(1);
-        es2 = Executors.newFixedThreadPool(1);
         db = new DB(getApplicationContext());
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -61,10 +60,10 @@ public class WiFiviser extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         scanService mScanService = new scanService();
-        broadcastListener mBroadcastListener = new broadcastListener();
+        mCurLoc = ServiceForLocation.mCurLoc;
+        mSatCount = MapsActivity.mSatCount;
 
         es.execute(mScanService);
-        es2.execute(mBroadcastListener);
         return super.onStartCommand(intent,flags,startId);
     }
 
@@ -89,7 +88,7 @@ public class WiFiviser extends Service {
 
             try {
                 myUtil util = new myUtil();
-                db.getAllData();
+                db.getAllData(mCurLoc);
                 mCurLoc = MapsActivity.mCurLoc;
                 mSatCount = MapsActivity.mSatCount;
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
@@ -172,41 +171,4 @@ public class WiFiviser extends Service {
 
     }
 
-    class broadcastListener implements Runnable {
-        @Override
-        public void run() {
-
-            br = new BroadcastReceiver() {
-                // действия при получении сообщений
-                public void onReceive(Context context, Intent intent) {
-                    double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
-                    double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
-                    Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
-                    mCurLoc = new LatLng(mLatitude, mLongitude);
-                    unregisterReceiver(br);
-                }
-            };
-            // создаем объект для создания и управления версиями БД
-            // создаем фильтр для BroadcastReceiver
-            intFilt = new IntentFilter(BROADCAST_ACTION);
-
-            br_sat = new BroadcastReceiver() {
-                // действия при получении сообщений
-                public void onReceive(Context context, Intent intent) {
-
-                    mSatCount = intent.getIntExtra(PARAM_SAT, 0);
-
-                    Log.d(TAG, "onReceive: satellites =  " + mSatCount);
-                    unregisterReceiver(br_sat);
-                }
-            };
-            // создаем фильтр для BroadcastReceiver
-            intFilt2 = new IntentFilter(BROADCAST_ACTION_SAT);
-
-
-         //   registerReceiver(br_sat, intFilt2);
-         //   registerReceiver(br, intFilt);
-
-        }
-    }
 }

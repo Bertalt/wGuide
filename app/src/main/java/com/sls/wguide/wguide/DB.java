@@ -7,13 +7,20 @@ package com.sls.wguide.wguide;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import java.util.ArrayList;
+
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
 
 public class DB {
 
@@ -30,6 +37,10 @@ public class DB {
     public static final String TIME = "time";
     public static final String AMOUNT_SAT = "amount_sat";
     public static final String BROADCAST_UPDATE_DB = "com.sls.wguide.updated_db";
+    private float mAvaRadius;
+    private double mRadiusInLanLng = 0.00000960865339; // = 1 m
+    private static LatLng mCurLoc;
+    private SharedPreferences sharedPref;
 
     private final String TAG = "database";
 
@@ -71,6 +82,9 @@ public class DB {
         mDBHelper = new DBHelper(mCtx, DB_NAME, null, DB_VERSION);
 
         mDB = mDBHelper.getWritableDatabase();
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(mCtx);
+        mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
+
     }
 
     // закрыть подключение
@@ -79,52 +93,59 @@ public class DB {
     }
 
     // получить все данные из таблицы DB_TABLE
-    public Cursor getAllData() {
-    open();
-            mApList = new ArrayList<AccessPoint>();
-            Cursor c  = mDB.query(TABLE_NAME, null, null, null, null, null, null);
-
-            if (c.moveToFirst()) {
-
-                // определ€ем номера столбцов по имени в выборке
-                int _idColIndex = c.getColumnIndex(ID);
-                int bssidColIndex = c.getColumnIndex(BSSID);
-                int ssidColIndex = c.getColumnIndex(SSID);
-                int levelColIndex = c.getColumnIndex(LEVEL);
-                int latColIndex = c.getColumnIndex(LATITUDE);
-                int lonColIndex = c.getColumnIndex(LONGITUDE);
-                int encryptColIndex = c.getColumnIndex(ENCRYPT);
-                int whoAddColIndex = c.getColumnIndex(WHO_ADD);
-                int amountOfSatColIndex = c.getColumnIndex(AMOUNT_SAT);
-                int timeColIndex = c.getColumnIndex(TIME);
 
 
-                do {
-                    // получаем значени€ по номерам столбцов в отдельный объект
-                    AccessPoint mAp = new AccessPoint();
+    public Cursor getAllData(LatLng mCurLoc){
+        open();
+        mApList = new ArrayList<AccessPoint>();
+        Cursor c  = mDB.query(TABLE_NAME, null, null, null, null, null, null);
 
-                    mAp.setID(_idColIndex);
-                    mAp.setSSID(c.getString(ssidColIndex));    //string
-                    mAp.setBSSID(c.getString(bssidColIndex));  //string
-                    mAp.setLevel(c.getInt(levelColIndex)); //int
-                    mAp.setLat(c.getDouble(latColIndex));//double
-                    mAp.setLon(c.getDouble(lonColIndex));//double
-                    mAp.setEncrypt(c.getString(encryptColIndex));//string
-                    mAp.setAmountSat(c.getShort(amountOfSatColIndex));
-                    mAp.setWho_add(c.getString(whoAddColIndex));
-                    mAp.setTime(c.getLong(timeColIndex));
+        if (c.moveToFirst()) {
 
-                    //добавл€ем объект в список объектов
+            // определ€ем номера столбцов по имени в выборке
+            int _idColIndex = c.getColumnIndex(ID);
+            int bssidColIndex = c.getColumnIndex(BSSID);
+            int ssidColIndex = c.getColumnIndex(SSID);
+            int levelColIndex = c.getColumnIndex(LEVEL);
+            int latColIndex = c.getColumnIndex(LATITUDE);
+            int lonColIndex = c.getColumnIndex(LONGITUDE);
+            int encryptColIndex = c.getColumnIndex(ENCRYPT);
+            int whoAddColIndex = c.getColumnIndex(WHO_ADD);
+            int amountOfSatColIndex = c.getColumnIndex(AMOUNT_SAT);
+            int timeColIndex = c.getColumnIndex(TIME);
 
-                    mApList.add(mAp);
+            do {
+                if(mCurLoc != null)
+                    if(!getVector(mCurLoc, new LatLng(c.getDouble(latColIndex),c.getDouble(lonColIndex)))) {
+                        Log.d("rad",  c.getString(ssidColIndex) +" out of radius");
+                        continue;
+                    }
+                // получаем значени€ по номерам столбцов в отдельный объект
+                AccessPoint mAp = new AccessPoint();
 
-                    // а если следующей нет (текуща€ - последн€€), то false - выходим из цикла
-                } while (c.moveToNext());
-            } else
-                Log.d(TAG, "0 rows");
+                mAp.setID(_idColIndex);
+                mAp.setSSID(c.getString(ssidColIndex));    //string
+                mAp.setBSSID(c.getString(bssidColIndex));  //string
+                mAp.setLevel(c.getInt(levelColIndex)); //int
+                mAp.setLat(c.getDouble(latColIndex));//double
+                mAp.setLon(c.getDouble(lonColIndex));//double
+                mAp.setEncrypt(c.getString(encryptColIndex));//string
+                mAp.setAmountSat(c.getShort(amountOfSatColIndex));
+                mAp.setWho_add(c.getString(whoAddColIndex));
+                mAp.setTime(c.getLong(timeColIndex));
 
-            Log.d(TAG, "red " + mApList.size() + "AP object(s)");
-    close();
+                //добавл€ем объект в список объектов
+
+
+                mApList.add(mAp);
+
+                // а если следующей нет (текуща€ - последн€€), то false - выходим из цикла
+            } while (c.moveToNext());
+        } else
+            Log.d(TAG, "0 rows");
+
+        Log.d(TAG, "red " + mApList.size() + "AP object(s)");
+        close();
         return c;
     }
 
@@ -137,40 +158,6 @@ public class DB {
     return null;
 }
 
-
-    // добавить запись в DB_TABLE
-    /*
-    public void addRec(String bssid, String ssid, int level, double lat, double lon, String encrypt, String who_add, long time) {
-
-        ContentValues cv = new ContentValues();
-        cv.put(BSSID, bssid);
-        cv.put(SSID, ssid);
-        cv.put(LEVEL, level);
-        cv.put(LATITUDE, lat);
-        cv.put(LONGITUDE, lon);
-        cv.put(WHO_ADD, who_add);
-        cv.put(ENCRYPT, encrypt);
-        cv.put(TIME, time);
-       long _id = mDB.insert(TABLE_NAME, null, cv);
-
-
-        AccessPoint mAp = new AccessPoint();
-
-        mAp.setID((int)_id);
-        mAp.setSSID(ssid);    //string
-        mAp.setBSSID(bssid);  //string
-        mAp.setLevel(level);    //int
-        mAp.setLat(lat);    //double
-        mAp.setLon(lon);    //double
-        mAp.setEncrypt(encrypt);   //string
-        mAp.setWho_add(who_add);
-        mAp.setTime(time);
-
-        //добавл€ем объект в список объектов
-
-        mApList.add(mAp);
-    }
-    */
     public AccessPoint getByBssid(String bssid)
     {
         try
@@ -189,7 +176,7 @@ public class DB {
         {
             ex.printStackTrace();
             Log.e(TAG, "Wait... I try fix it");
-            getAllData();
+            getAllData(MapsActivity.mCurLoc);
             return getByBssid(bssid);
         }
 
@@ -278,6 +265,21 @@ close();
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             db.execSQL(ALTER_TABLE);
         }
+    }
+    public  boolean getVector ( LatLng a ,  LatLng b)
+    {
+        if (a == null)
+            return true;
+        if (b == null)
+            return false;
+
+        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
+        double radius = sqrt(pow(AB.latitude,2) + pow(AB.longitude,2));
+       // Log.d(TAG, "Radius = " + radius);
+        if (radius > mRadiusInLanLng*mAvaRadius)
+            return false;
+
+        return true;
     }
 
 }

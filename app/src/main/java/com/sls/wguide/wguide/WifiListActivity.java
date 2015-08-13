@@ -40,13 +40,9 @@ public class WifiListActivity
     public static final String PARAM_LEVEL = "level";
     public static final String PARAM_ECRYPT  = "encrypt";
     public static final String PARAM_COUNT = "count";
-    public static final String PARAM_SAT  = "satellites";
-    public final static String BROADCAST_ACTION_LOC = "com.nullxweight.servicebackbroadcast";
     public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast_sat";
     public final static String BROADCAST_ACTION_WF = "com.nullxweight.servicebackbroadcast_wf";
-    private BroadcastReceiver br;
     private BroadcastReceiver br_wf;
-    private BroadcastReceiver br_loc;
     private  DB db;
     private LinearLayout progressLayout;
     private ExecutorService mExecutorService;
@@ -84,6 +80,7 @@ public class WifiListActivity
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         db = new DB(this);
         db.open();
+        mCurLoc = ServiceForLocation.mCurLoc;
         /*
         progressLayout = (LinearLayout) findViewById(R.id.linLayout_progress);
         pbTitle = (TextView) findViewById(R.id.pbTitle);
@@ -94,7 +91,7 @@ public class WifiListActivity
         new Thread(new Runnable() {
             @Override
             public void run() {
-                db.getAllData();
+                db.getAllData(MapsActivity.mCurLoc);
             }
         }).start();
 
@@ -103,8 +100,7 @@ public class WifiListActivity
         // создаем массив списков
         mWFList = new ArrayList<HashMap<String, Object>>();
 
-        listView = (ListView) findViewById(R.id.listView);
-        listView.setEmptyView( findViewById( R.id.empty_list_view ) );
+        listView = (ListView) findViewById(R.id.listView_hand_add);
 
         adapter = new SimpleAdapter(getApplicationContext(), mWFList,
                 R.layout.hand_add_item, new String[]{lLEVEL, lSSID, lBSSID, lENCRYPT},
@@ -116,16 +112,8 @@ public class WifiListActivity
                  fm = getFragmentManager();
 
         registerForContextMenu(listView);
-/*
-        myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                mWFList.clear();
-            }
-        }, 0, 10 * 1000);
-*/
-        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.refresh_hand_add);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
@@ -145,7 +133,7 @@ public class WifiListActivity
                 AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item
                         .getMenuInfo();
 
-            db.getAllData();
+            db.getAllData(mCurLoc);
                 String tmp_bssid = mWFList.get(acmi.position).get(lBSSID).toString();
                 AccessPoint tmp_obj_ex = db.getByBssid(tmp_bssid);
                 if (tmp_obj_ex != null) {
@@ -203,8 +191,6 @@ public class WifiListActivity
     {
         super.onPause();
         try {
-            unregisterReceiver(br_loc);
-            unregisterReceiver(br);
             unregisterReceiver(br_wf);
         }
         catch (IllegalArgumentException ex)
@@ -235,37 +221,8 @@ public class WifiListActivity
     private void onApListener ()
     {
         mCountWF = 0;
-                // создаем BroadcastReceiver
-                br_loc = new BroadcastReceiver() {
-                    // действия при получении сообщений
-                    public void onReceive(Context context, Intent intent) {
-                        double mLongitude = intent.getDoubleExtra(PARAM_LON, 0);
-                        double mLatitude = intent.getDoubleExtra(PARAM_LAT, 0);
-                        mCurLoc = new LatLng(mLatitude, mLongitude);
-                        Log.d(TAG, "onReceive: Lat = " + mLatitude + ", Lon = " + mLongitude);
-
-                    }
-                };
-
-                // создаем фильтр для BroadcastReceiver
-                IntentFilter intFilt1 = new IntentFilter(BROADCAST_ACTION_LOC);
-                // регистрируем (включаем) BroadcastReceiver
-                registerReceiver(br_loc, intFilt1);
-
-                br = new BroadcastReceiver() {
-                    // действия при получении сообщений
-                    public void onReceive(Context context, Intent intent) {
-
-                        mSatCount = intent.getIntExtra(PARAM_SAT, 0);
-
-                        Log.d(TAG, "onReceive: satellites =  " + mSatCount);
-                    }
-                };
-                // создаем фильтр для BroadcastReceiver
-                IntentFilter intFilt2 = new IntentFilter(BROADCAST_ACTION);
-                // регистрируем (включаем) BroadcastReceiver
-                registerReceiver(br, intFilt2);
-
+        mCurLoc = MapsActivity.mCurLoc;
+        mSatCount = MapsActivity.mSatCount;
 
                 br_wf = new BroadcastReceiver() {
                     // действия при получении сообщений
@@ -303,11 +260,8 @@ public class WifiListActivity
                         else {
                             mSwipeRefreshLayout.setRefreshing(false);
                             Log.d("WF1", "GONE");
-                            unregisterReceiver(br_loc);
-                           unregisterReceiver(br);
                            unregisterReceiver(br_wf);
-                           // mExecutorService.shutdownNow();
-                           // Thread.currentThread().interrupt();
+
                             return;
                         }
 
