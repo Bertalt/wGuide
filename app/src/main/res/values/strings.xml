@@ -3,24 +3,14 @@
     <string name="title_activity_maps">wGuide</string>
     <string name="action_settings">Settings</string>
     <string name="action_wifiList">WiFi list</string>
-    <string name="buttonScan">Scan wireless</string>
+    <string name="buttonScan" translatable="false">Scan wireless</string>
     <string name="title_activity_wifilist">Scanner</string>
     <string name="button_find_me">Find Me</string>
     <string name="action_update_map">Update map</string>
-
-    <string name="switch_search_mod">Search WiFi</string>
-    <string name="switch_search_mod_on">Search MOD</string>
-    <string name="switch_search_mod_off">User MOD</string>
     <string name="menu_remove">Remove</string>
 
     <string name="content_open_popup">Open Popup Menu</string>
     <string name="toast_empty_database">The database is empty</string>
-    <string name="alert_dialog_ok"> I know what i\'m doing </string>
-    <string name="alert_dialog_cancel">Thx, I\'ll try later</string>
-    <string name="alert_dialog_two_buttons_title">Recommendation</string>
-    <string name="menu_add_in_db">Add in DB</string>
-    <string name="recomend_part_1">We recommend you not to add a new record to the database. </string>
-    <string name="recomend_part_2"> This coordinates will be wrong. </string>
 
     <string name="title_activity_listFromDb">Database</string>
     <string name="delete_record">Delete record</string>
@@ -28,7 +18,7 @@
     <string name="open_record">Find on map</string>
     <string name="action_list_from_db">Open database</string>
     <string name="list_empty">EMPTY</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="header_search">Search for network with a batter signal than </string>
 
     <string name="context_menu_adding"> Add this access point</string>
@@ -41,8 +31,6 @@
     <string name="pref_summary_closeOn"> Scan encrypted access points</string>
     <string name="pref_title_closeOn">Scan all</string>
 
-    <string name="pref_count_sat_title"> Amount of satellites </string>
-    <string name="pref_count_sat_dialog_title"> Choose number of satellites</string>
     <string name ="pref_syncConnectionTypes_default">6</string>
 
     <!-- headers -->
@@ -65,4 +53,5 @@
     <string name="summary_map_ava_radius">Markers will be visible only in this radius</string>
     <string name="title_map_ava_radius"> Available radius</string>
     <string name="error_adding_db"> Oops, error #02. Please, try again</string>
+    <string name="pref_count_sat_dialog_title">Choose number of satellites</string>
 </resources>

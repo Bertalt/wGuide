@@ -107,7 +107,7 @@ public class WifiListActivity
         listView.setEmptyView( findViewById( R.id.empty_list_view ) );
 
         adapter = new SimpleAdapter(getApplicationContext(), mWFList,
-                R.layout.list_item, new String[]{lLEVEL, lSSID, lBSSID, lENCRYPT},
+                R.layout.hand_add_item, new String[]{lLEVEL, lSSID, lBSSID, lENCRYPT},
                 new int[]{R.id.tvLevel_wf, R.id.tvSSID_wf, R.id.tvBSSID_wf, R.id.tvEncrypt_wf});
 
         listView.setAdapter(adapter);

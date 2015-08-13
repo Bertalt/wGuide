@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">wGuide</string>
+    <string name="action_list_from_db">Відкрити базу</string>
+    <string name="action_settings">Налаштування</string>
+    <string name="action_update_map">Оновити мапу</string>
+    <string name="action_wifiList">Ручний режим</string>
+    <string name="add_record">Додати до бази даних</string>
+    <string name="button_find_me">Знайти мене</string>
+    <string name="context_menu_adding">Занести до бази даних</string>
+    <string name="delete_record">Видалити з бази</string>
+    <string name="headerEncrypt">Тип шифрування</string>
+    <string name="headerLevel">Рівень сигналу</string>
+    <string name="header_search">Проводжу пошук мереж з синалом краже, ніж </string>
+    <string name="list_empty">Порожньо</string>
+    <string name="loading">Завантажую</string>
+    <string name="menu_add_in_db">Додати до бази даних</string>
+    <string name="menu_remove">Видалити</string>
+    <string name="open_record">Знайти на мапі</string>
+    <string name="pref_count_sat_dialog_title"></string>
+    <string name="pref_summary_closeOn">Сканувати зашифровані точки доступу</string>
+    <string name="pref_summary_mod">В цьому режимі програма проводить автоматичне сканування бездротових мереж й визначає більш точні координати користувача</string>
+    <string name="pref_title_closeOn">Сканувати усі</string>
+    <string name="pref_title_mod">Режим сканування</string>
+    <string name="refer_gps_settings">Системні налаштування GPS</string>
+    <string name="summary_count_gps">Для обчислення точних кооржинат</string>
+    <string name="summary_map_ava_radius">Помітки точок доступу на мапі будуть відображаться тільки в цьому радіусі</string>
+    <string name="summary_wifi_auto_min_signal">Сервіс автоматичної обробки результатів сканування ігноруватиме показники сигналу нижчі за введений. Увага! Вам слід вводити беззнакову величину. </string>
+    <string name="summary_wifi_min_signal">Сервіс сканування ігноруватиме показники сигналів нижчі за введені. Увага! Вам слід вводити беззнакову величину.</string>
+    <string name="title_map_ava_radius">Радіус для відображення</string>
+    <string name="title_wifi_auto_min_signal">Мінімальний сигнал для обробки</string>
+    <string name="title_wifi_min_signal">Мінімальний сигнал для пошуку</string>
+    <string name="toast_empty_database">База даних порожня</string>
+    <string name="switch_search_mod_on">Режим сканування</string>
+    <string name="title_activity_listFromDb">База даних</string>
+    <string name="title_count_gps">Кількість супутників</string>
+</resources>

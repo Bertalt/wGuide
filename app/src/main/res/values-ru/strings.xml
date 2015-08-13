@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">wGuide</string>
+    <string name="title_activity_maps">wGuide</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_wifiList">Ручной режим</string>
+    <string name="buttonScan">Scan wireless</string>
+    <string name="title_activity_wifilist">Сканер</string>
+
+    <string name="switch_search_mod">Search WiFi</string>
+    <string name="switch_search_mod_on">Режим сканирования</string>
+    <string name="switch_search_mod_off">User MOD</string>
+    <string name="menu_remove">Удалить </string>
+
+    <string name="content_open_popup">Open Popup Menu</string>
+    <string name="toast_empty_database">База данных пуста</string>
+    <string name="alert_dialog_ok"> I know what i\'m doing </string>
+    <string name="alert_dialog_cancel">Thx, I\'ll try later</string>
+    <string name="alert_dialog_two_buttons_title">Recommendation</string>
+    <string name="menu_add_in_db">Добавить в базу данных</string>
+    <string name="recomend_part_1">Мы не рекомендуем добавлять новые точни доступа в базу данных</string>
+    <string name="recomend_part_2">эти координаты могут быть ошибочны</string>
+
+    <string name="title_activity_listFromDb">База данных</string>
+    <string name="delete_record">Удалить из базы </string>
+    <string name="add_record">Добавить в базу данных</string>
+    <string name="open_record">Открыть на карте </string>
+    <string name="list_empty">Пусто</string>
+    <string name="header_search">Провожу поиск сетей с сигланом лучше, чем </string>
+
+    <string name="pref_gps_title"> GPS</string>
+    <string name="pref_wifi_title"> WiFi</string>
+    <string name="pref_summary_mod">В этом режиме программа проводит автоматическое сканирования безпроводных сетей и определяет более точные значения координат пользователя</string>
+    <string name="pref_title_mod">Режим сканирования</string>
+    <string name="refer_gps_settings">Системные настройки GPS</string>
+    <string name="pref_summary_closeOn">Сканировать защифрованные точки доступа</string>
+    <string name="pref_title_closeOn">Сканировать все</string>
+
+    <string name="pref_count_sat_title"> Amount of satellites </string>
+    <string name ="pref_syncConnectionTypes_default">6</string>
+
+    <!-- headers -->
+    <string name="headerSSID">SSID</string>
+    <string name="headerBSSID">BSSID</string>
+    <string name="headerEncrypt">Тип шифрования</string>
+
+    <!-- Preferences GPS-->
+    <string name="title_count_gps">Колличесто спутников</string>
+    <string name="summary_count_gps">Для определения точных координат</string>
+
+    <!-- Prefer WiFi -->
+    <string name="title_wifi_min_signal">Минимальный сигнал для поиска</string>
+    <string name="summary_wifi_min_signal">Сервис сканирования будет игнорировать сигналы ниже введенного. Внимание! Вы должны вводить беззнаковую величину.</string>
+    <string name="title_wifi_auto_min_signal">Минимальный сигнал для обработки</string>
+    <string name="summary_wifi_auto_min_signal">Сервис автоматической обработки результатов сканирования будет игнорировать сигналы ниже введенных. Внимание! Вы должны вводить беззнаковую величину.</string>
+
+    <!-- Preferences MAP-->
+    <string name="summary_map_ava_radius">Меркеры точек доступа будут видны только в этом радиусе</string>
+    <string name="title_map_ava_radius">Радиус для отображения</string>
+    <string name="error_adding_db"> Oops, error #02. Please, try again</string>
+    <string name="action_list_from_db">Просмотреть базу </string>
+    <string name="action_update_map">Обновить карту</string>
+    <string name="button_find_me">Найти меня </string>
+    <string name="context_menu_adding">Добавить в базу данных</string>
+    <string name="headerLevel">Уровень сигнала</string>
+    <string name="loading">Загружаю…</string>
+    <string name="pref_count_sat_dialog_title">Choose number of satellites</string>
+</resources>

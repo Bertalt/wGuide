@@ -1,6 +1,5 @@
 package com.sls.wguide.wguide;
 
-import android.app.DialogFragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -440,12 +439,5 @@ public class MapsActivity extends ActionBarActivity
                      }
                      }
                  }
-
-             void showDialog() {
-                 // Create the fragment and show it as a dialog.
-                 DialogFragment newFragment = DialogFragmentWaitMap.newInstance();
-                 newFragment.show(getFragmentManager(), "Loading");
-             }
-
              }
 

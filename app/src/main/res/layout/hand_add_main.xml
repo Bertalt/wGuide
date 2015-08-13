@@ -30,21 +30,22 @@
         <TextView
             android:id="@+id/headerLevel"
             android:layout_height="match_parent"
-            android:layout_width="wrap_content"
+            android:layout_width="35dp"
             android:gravity="center"
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:maxLines="1"
             android:textColor="#ff007aff"
             android:text="@string/headerLevel"
+
             android:ellipsize="end"
-            android:layout_weight="0.75" />
+            android:layout_weight="1" />
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="2.20"
+            android:layout_weight="3"
             android:textColor="#ff007aff"
             android:gravity="center"
             >
@@ -70,7 +71,7 @@
                 android:text="@string/headerBSSID"/>
         </LinearLayout>
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="35dp"
             android:layout_height="match_parent"
             android:id="@+id/headerEncrypt"
             android:paddingLeft="4dp"
@@ -78,7 +79,7 @@
             android:paddingRight="4dp"
             android:text="@string/headerEncrypt"
             android:gravity="center"
-            android:layout_weight="0.20" />
+            android:layout_weight="1" />
 
 
     </LinearLayout>

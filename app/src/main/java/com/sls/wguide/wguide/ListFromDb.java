@@ -38,13 +38,11 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private ListView lvData;
     private static LinearLayout linearLayout;
     private DB db;
-    private View layerPbLoad, layerTvLoad;
+    private View layerPbLoad;
     private ApAdapter scAdapter;
-    private LinearLayout mEmptyLayout;
     private final String TAG = "open_db";
     private float mAvaRadius;
     private SharedPreferences sharedPref;
-    private boolean mOk = true;
     private double mRadiusInLanLng = 0.00000960865339; // = 1 m
 
     /** Called when the activity is first created. */
