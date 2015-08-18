@@ -5,10 +5,8 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -50,7 +48,7 @@ public class ApAdapter extends SimpleCursorAdapter {
         TextView tvEncrypt= (TextView) view.findViewById(R.id.tvEncrypt);
         TextView tvWho_add = (TextView) view.findViewById(R.id.who_add);
 
-        tvLevel.setText(level+"");
+        tvLevel.setText("-"+level+"db");
         tvSSID.setText(SSID+"");
         tvBSSID.setText(BSSID+"");
         tvEncrypt.setText(ENCRYPT+"");
@@ -58,33 +56,4 @@ public class ApAdapter extends SimpleCursorAdapter {
 
 
     }
-
-
-
-    public AccessPoint getApByPosition(int position)
-    {
-        return mList.get(position);
-    }
-
-    //get checked list
-    private ArrayList<AccessPoint> getCheckedList()
-    {
-        ArrayList<AccessPoint> mCheckedList = new ArrayList<>();
-
-        for (AccessPoint mAp : mList)
-        {
-            if (mAp.isCheck())
-                mCheckedList.add(mAp);
-        }
-        return mCheckedList;
-    }
-
-
-    AdapterView.OnItemClickListener onClickAdapterListener =new  AdapterView.OnItemClickListener ()
-    {
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-        {
-            Toast.makeText(context, mList.get(position).getSSID() + " clicked", Toast.LENGTH_SHORT).show();
-        }
-    };
 }

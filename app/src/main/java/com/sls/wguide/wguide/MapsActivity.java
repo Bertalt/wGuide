@@ -143,6 +143,9 @@ public class MapsActivity extends ActionBarActivity
                  super.onNewIntent(intent);
                  setIntent(intent);
 
+                 mLat = intent.getDoubleExtra("lat", 48.35);
+                 mLon = intent.getDoubleExtra("lon", 31.16);
+                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
 
                  // something you want
              }
@@ -165,13 +168,7 @@ public class MapsActivity extends ActionBarActivity
 
         if (GooglePlayServicesUtil.isGooglePlayServicesAvailable(this) != ConnectionResult.SUCCESS)
             Toast.makeText(this, "Google Play service failed", Toast.LENGTH_SHORT).show();
-        mIntent = getIntent();
-        mLat = mIntent.getDoubleExtra("lat", 48.35);
-        mLon = mIntent.getDoubleExtra("lon", 31.16);
-        if  (mLat== 48.35 && mLon == 31.16)
-        goCurrentLocation(mMap);
-        else
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
+
         //showDialog();
     }
 
@@ -312,6 +309,9 @@ public class MapsActivity extends ActionBarActivity
         else
             Toast.makeText(this, "map = null", Toast.LENGTH_SHORT).show();
     }
+
+
+
 
     private void goCurrentLocation (GoogleMap _mMap)  //move camera on current user's coordinates
     {

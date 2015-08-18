@@ -91,7 +91,7 @@ public class WifiListActivity
         new Thread(new Runnable() {
             @Override
             public void run() {
-                db.getAllData(MapsActivity.mCurLoc);
+                db.getAllData();
             }
         }).start();
 
@@ -133,7 +133,7 @@ public class WifiListActivity
                 AdapterView.AdapterContextMenuInfo acmi = (AdapterView.AdapterContextMenuInfo) item
                         .getMenuInfo();
 
-            db.getAllData(mCurLoc);
+            db.getAllData();
                 String tmp_bssid = mWFList.get(acmi.position).get(lBSSID).toString();
                 AccessPoint tmp_obj_ex = db.getByBssid(tmp_bssid);
                 if (tmp_obj_ex != null) {

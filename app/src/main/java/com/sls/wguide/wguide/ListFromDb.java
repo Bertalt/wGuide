@@ -4,7 +4,6 @@ package com.sls.wguide.wguide;
  * Created by Sls on 21.05.2015.
  */
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,8 +26,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
 public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Cursor>, SwipeRefreshLayout.OnRefreshListener {
 
     private static final int CM_DELETE_ID = 1;
@@ -42,11 +39,8 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     private final String TAG = "open_db";
     private float mAvaRadius;
     private SharedPreferences sharedPref;
-    private BroadcastReceiver br;
-    LatLng mCurLoc;
-    SwipeRefreshLayout mSwipeRefreshLayout;
 
-    private double mRadiusInLanLng = 0.00000960865339; // = 1 m
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
@@ -63,7 +57,6 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
         // открываем подключение к БД
         db = new DB(this);
-        db.open();
 
         // формируем столбцы сопоставления
         String[] from = new String[]{db.LEVEL, db.SSID, db.BSSID, db.ENCRYPT};
@@ -72,6 +65,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         // создааем адаптер и настраиваем список
         scAdapter = new ApAdapter(this, R.layout.list_db_item, null, from, to, 0);
         lvData = (ListView) findViewById(R.id.list_view_db);
+
 
             lvData.setAdapter(scAdapter);
 
@@ -112,10 +106,6 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
             // извлекаем id записи и удаляем соответствующую запись в БД
             db.delRec(acmi.id);
 
-            if (linearLayout != null && layerPbLoad != null)
-            linearLayout.addView(layerPbLoad);
-            else
-            Log.e(TAG, "Can not find load layout ");
             // получаем новый курсор с данными
             getSupportLoaderManager().getLoader(0).forceLoad();
             return true;
@@ -130,8 +120,9 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
             {
                 Intent intent = new Intent(this, MapsActivity.class).putExtra("lat",tmp.getLat())
                         .putExtra("lon",tmp.getLon())
-                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                      //  .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        ; /*  */
                 startActivity(intent);
 
             }
@@ -153,6 +144,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
 
     }
 
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bndl) {
         return new MyCursorLoader(this, db);
@@ -168,7 +160,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         if  (linearLayout != null)
             linearLayout.removeAllViews();
         scAdapter.swapCursor(cursor);
-
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -179,7 +171,7 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
     public void onRefresh() {
 
         mSwipeRefreshLayout.setRefreshing(true);
-
+        new MyCursorLoader(this, db);
     }
 
     static class MyCursorLoader extends CursorLoader {
@@ -189,15 +181,15 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         public MyCursorLoader(Context context, DB db) {
             super(context);
             this.db = db;
+
         }
 
         @Override
         public Cursor loadInBackground() {
+            Cursor cursor = db.getAllData();
 
-
-            Cursor cursor = db.getAllData(MapsActivity.mCurLoc);
+            Log.d("curs", String.valueOf(cursor.getCount()));
             return cursor;
         }
-
     }
 }

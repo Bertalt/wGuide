@@ -17,7 +17,10 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
@@ -50,7 +53,8 @@ public class DB {
 
     private ArrayList  <AccessPoint> mApList;
     public static final String TABLE_NAME = "apDnepr";
-
+    private String selection;
+    private DecimalFormat decimalFormat;
     private static final String DB_CREATE =
             "create table " + TABLE_NAME + "("
                     + ID + "  INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -75,7 +79,12 @@ public class DB {
     private DBHelper mDBHelper;
     private SQLiteDatabase mDB;
 
-    public DB(Context ctx) {        mCtx = ctx;             }
+    public DB(Context ctx) {        mCtx = ctx;
+        Locale locale  = new Locale("en", "UK");
+        String pattern = "######.######";
+        decimalFormat = (DecimalFormat)
+                NumberFormat.getNumberInstance(locale);
+        decimalFormat.applyPattern(pattern);}
 
     // открыть подключение
     public void open() {
@@ -95,11 +104,45 @@ public class DB {
     // получить все данные из таблицы DB_TABLE
 
 
-    public Cursor getAllData(LatLng mCurLoc){
+    public Cursor getAllData(){
+
+        Cursor c;
         open();
         mApList = new ArrayList<AccessPoint>();
-        Cursor c  = mDB.query(TABLE_NAME, null, null, null, null, null, null);
+        /*
+        float Rin2 = (float)pow((mRadiusInLanLng*mAvaRadius),2);
 
+        String x1 ="(("+LATITUDE+ "-?)*"+
+                   "("+LATITUDE+ "-?)";
+        String x2 ="("+LONGITUDE+"-?)*"+
+                   "("+LONGITUDE+"-?))";
+        selection = x1+ "+" +x2 +" <= ?" ;
+
+        try {
+        String[] selectionArgs = {
+                decimalFormat.format(ServiceForLocation.mCurLoc.latitude),
+                decimalFormat.format(ServiceForLocation.mCurLoc.latitude),
+                decimalFormat.format(ServiceForLocation.mCurLoc.longitude),
+                decimalFormat.format(ServiceForLocation.mCurLoc.longitude),
+                decimalFormat.format(Rin2)};
+
+
+            double X1 = pow(ServiceForLocation.mCurLoc.latitude - 48.4604353, 2);
+            double X2 = pow(ServiceForLocation.mCurLoc.longitude - 35.00582, 2);
+                    Log.d("math",
+                            decimalFormat.format(X1) + " + " +  decimalFormat.format(X2) +" = " + decimalFormat.format(X1+X2)
+                            +" & "+ decimalFormat.format(Rin2)
+
+            );
+          //  Log.d("math", pow(ServiceForLocation.mCurLoc.latitude - 48.))
+        c = mDB.query(TABLE_NAME, null,selection,selectionArgs, null, null, null);
+        }
+        catch (NullPointerException ex)
+        {
+            ex.printStackTrace();
+            */
+           c = mDB.query(TABLE_NAME, null, null, null, null, null, null);
+       // }
         if (c.moveToFirst()) {
 
             // определяем номера столбцов по имени в выборке
@@ -115,11 +158,17 @@ public class DB {
             int timeColIndex = c.getColumnIndex(TIME);
 
             do {
-                if(mCurLoc != null)
-                    if(!getVector(mCurLoc, new LatLng(c.getDouble(latColIndex),c.getDouble(lonColIndex)))) {
+
+                /*
+                if(ServiceForLocation.mCurLoc != null)
+                    if(!getVector(ServiceForLocation.mCurLoc, new LatLng(c.getDouble(latColIndex),c.getDouble(lonColIndex)))) {
                         Log.d("rad",  c.getString(ssidColIndex) +" out of radius");
-                        continue;
+                        {
+                            continue;
+                        }
                     }
+    */
+
                 // получаем значения по номерам столбцов в отдельный объект
                 AccessPoint mAp = new AccessPoint();
 
@@ -146,6 +195,7 @@ public class DB {
 
         Log.d(TAG, "red " + mApList.size() + "AP object(s)");
         close();
+        Log.d("curs1", String.valueOf(c.getCount()));
         return c;
     }
 
@@ -176,7 +226,7 @@ public class DB {
         {
             ex.printStackTrace();
             Log.e(TAG, "Wait... I try fix it");
-            getAllData(MapsActivity.mCurLoc);
+            getAllData();
             return getByBssid(bssid);
         }
 
@@ -279,7 +329,8 @@ close();
         if (radius > mRadiusInLanLng*mAvaRadius)
             return false;
 
+
+
         return true;
     }
-
 }

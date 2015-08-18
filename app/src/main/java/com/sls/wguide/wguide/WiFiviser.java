@@ -88,7 +88,7 @@ public class WiFiviser extends Service {
 
             try {
                 myUtil util = new myUtil();
-                db.getAllData(mCurLoc);
+                db.getAllData();
                 mCurLoc = MapsActivity.mCurLoc;
                 mSatCount = MapsActivity.mSatCount;
                 WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);

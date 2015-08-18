@@ -59,9 +59,7 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
         // создаем объект для создания и управления версиями БД
         // создаем фильтр для BroadcastReceiver
         final Handler handler = new Handler(Looper.getMainLooper());
-        db.getAllData(mCurLoc);
-
-        
+        db.getAllData();
         int count = 0;
         alAccessPoints = db.getmApList();
 
@@ -74,7 +72,6 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                    mMarkerList.add(n, mMap.addMarker(new MarkerOptions()           //добавлеие маркера на карту + в список маркеров
                            .position(new LatLng(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon()))
                            .title(alAccessPoints.get(n).getSSID())
-                                   //  .visible(getVector(MapsActivity.mCurLoc, new LatLng(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon())))
                            .icon(BitmapDescriptorFactory
                                    .fromBitmap(BitmapFactory
                                            .decodeResource(context.getResources(), selectWifiMarker(alAccessPoints.get(n).getLevel()
@@ -147,7 +144,8 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                     tmp.getWho_add(),
                    tmp.getAmountSat(),
                     new Date().getTime()))
-               Toast.makeText(context, tmp.getSSID()+ " location changed ", Toast.LENGTH_SHORT).show();
+               Toast.makeText(context, tmp.getSSID()+ " location changed "+marker.getPosition().latitude+" "+ marker.getPosition().longitude, Toast.LENGTH_SHORT).show();
+
             marker.setVisible(db.getVector(ServiceForLocation.mCurLoc,
                         new LatLng( marker.getPosition().latitude,marker.getPosition().longitude)));
         }
