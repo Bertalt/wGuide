@@ -17,7 +17,6 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by Sls on 08.06.2015.
@@ -45,7 +44,7 @@ public class WiFiviser extends Service {
     {
 
         super.onCreate();
-        es = Executors.newFixedThreadPool(1);
+     //   es = Executors.newFixedThreadPool(1);
         db = new DB(getApplicationContext());
 
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -59,32 +58,102 @@ public class WiFiviser extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        scanService mScanService = new scanService();
+       // scanService mScanService = new scanService();
         mCurLoc = ServiceForLocation.mCurLoc;
         mSatCount = MapsActivity.mSatCount;
 
-        es.execute(mScanService);
+            myUtil util = new myUtil();
+            db.getAllData();
+            mCurLoc = MapsActivity.mCurLoc;
+            mSatCount = MapsActivity.mSatCount;
+            WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+            if (wifiManager.isWifiEnabled()) {
+
+                List<ScanResult> scanResults = wifiManager.getScanResults();
+                if (scanResults != null) {
+                    for (ScanResult scan : scanResults) {
+
+                        if (scan.level < -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_MIN_LEVEL, "90")))
+                            continue;
+                        // игнорирует точку доступа, если уровень сигнала ниже, чем указан в настройках (для всех)
+
+                        //игнорирует закрытые точки доступа, если в настройках отключен "Scan all"
+
+                        Intent mIntent = new Intent(WifiListActivity.BROADCAST_ACTION_WF);
+                        mIntent.putExtra(WifiListActivity.PARAM_BSSID, scan.BSSID);
+                        mIntent.putExtra(WifiListActivity.PARAM_SSID, scan.SSID);
+                        mIntent.putExtra(WifiListActivity.PARAM_LEVEL, scan.level);
+                        mIntent.putExtra(WifiListActivity.PARAM_ECRYPT, new myUtil().SecurTypeWiFi(scan.capabilities));
+                        mIntent.putExtra(WifiListActivity.PARAM_COUNT, scanResults.size());
+                        sendBroadcast(mIntent);
+
+                        if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_SCAN_CLOSE, false))
+                            if (!util.SecurTypeWiFi(scan.capabilities).equalsIgnoreCase("open"))
+                                continue;
+                        if (scan.level < -Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_WIFI_AUTO_MIN_LEVEL, "80")))
+                            continue;
+
+                        long mTime1 = new Date().getTime();
+
+                        while (MapsActivity.mCurLoc == null )
+                        {
+                            Log.i(TAG, "I'm waiting of satellites...");
+                            if (new Date().getTime() - mTime1 > 4000)
+                                stopSelf();
+                        }
+
+                        if (MapsActivity.mSatCount < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
+                            continue;
+
+                        //авт. часть игнорирует точку доступа, если доступно недостаточно спутников
+
+                        {
+                            AccessPoint tmp = db.getByBssid(scan.BSSID);
+                            if (tmp == null) {
+                                db.insertRec(scan.BSSID,
+                                        scan.SSID,
+                                        scan.level,
+                                        mCurLoc.latitude,
+                                        mCurLoc.longitude,
+                                        util.SecurTypeWiFi(scan.capabilities),
+                                        "S",
+                                        mSatCount,
+                                        new Date().getTime());
+                            } else {
+                                if (tmp.getLevel() < scan.level)
+                                    db.insertRec(scan.BSSID,
+                                            scan.SSID,
+                                            scan.level,
+                                            mCurLoc.latitude,
+                                            mCurLoc.longitude,
+                                            util.SecurTypeWiFi(scan.capabilities),
+                                            "S",
+                                            mSatCount,
+                                            new Date().getTime());
+                            }
+                        }
+                    }
+                }
+            } else
+                Log.d(TAG, "WiFi Disable");
+
+
+       // es.execute(mScanService);
         return super.onStartCommand(intent,flags,startId);
     }
 
     public void onDestroy() {
-        try{
 
-        }catch (NullPointerException NPE)
-        {
-            NPE.printStackTrace();
-        }
-        catch(RuntimeException RE)
-        {
-            super.onDestroy();
-        }
+
+        super.onDestroy();
         Log.d(TAG, "scanService onDestroy");
         super.onDestroy();
     }
+    /*
     class scanService implements Runnable
     {
         @Override
-        public void run() {
+            public void run() {
 
             try {
                 myUtil util = new myUtil();
@@ -170,5 +239,5 @@ public class WiFiviser extends Service {
         }
 
     }
-
+*/
 }

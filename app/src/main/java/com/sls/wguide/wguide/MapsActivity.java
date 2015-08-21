@@ -38,16 +38,15 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Timer;
 import java.util.TimerTask;
-
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 
 public class MapsActivity extends ActionBarActivity
          {
              private GoogleMap mMap; // Might be null if Google Play services APK (GPsA) is not available
     private Marker mMarkerCurrentPos;
-
+    private ScheduledExecutorService serviceWiFi;
     private boolean mLocationAccuracy = false;
     public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast";
     private BroadcastReceiver br;
@@ -76,10 +75,11 @@ public class MapsActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-
+        serviceWiFi = Executors.newSingleThreadScheduledExecutor();
         myTimer = new Timer();
         mServiceWithTimer = new Thread(new RunServiceWithTimer());
-
+        if(savedInstanceState == null)
+        Log.d("Test", "FIRST START OF ACTIVITY");
         lm = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         Log.d("LifeCycle", "onCreate()");
@@ -145,7 +145,7 @@ public class MapsActivity extends ActionBarActivity
 
                  mLat = intent.getDoubleExtra("lat", 48.35);
                  mLon = intent.getDoubleExtra("lon", 31.16);
-                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
+                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLat, mLon), 15.5f));
 
                  // something you want
              }
@@ -173,26 +173,29 @@ public class MapsActivity extends ActionBarActivity
     }
 
 
-    @Override
-    protected void onStart() {
+             @Override
+             protected void onStart() {
         super.onStart();
         Log.d("LifeCycle", "onStart()");
 
-            if (!mServiceWithTimer.isAlive() && sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false)) //
+            if ( !mServiceWithTimer.isAlive() && sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false) ) //
             {
+
                 myTimer.cancel();
                 myTimer = new Timer();
                 mServiceWithTimer = new Thread(new RunServiceWithTimer());
                 mServiceWithTimer.start();
+
             }
         if (!sharedPref.getBoolean(SettingsActivity.KEY_PREF_MODE, false))// остановка сервиса, если настройки изменились
         {
             myTimer.cancel();
         }
+
     }
 
-    @Override
-    protected void onStop() {
+             @Override
+             protected void onStop() {
         super.onStop();
         Log.d("LifeCycle", "onStop()");
 
@@ -276,12 +279,12 @@ public class MapsActivity extends ActionBarActivity
         {
             WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
             if (!wifiManager.isWifiEnabled()) {
-                Toast.makeText(getApplicationContext(), "You should enable WiFi", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.toast_recommend_on_wifi), Toast.LENGTH_SHORT).show();
                 return true;
             }
             else if (!mLocationAccuracy)
             {
-                Toast.makeText(getApplicationContext(), "You should change mod on Search", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.toast_recommend_on_search), Toast.LENGTH_SHORT).show();
                 return true;
             }
             startActivity(new Intent(this, WifiListActivity.class));
@@ -327,18 +330,12 @@ public class MapsActivity extends ActionBarActivity
         }
     }
 
-    private double getRadius(LatLng a, LatLng b)
-    {
-        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
-        double radius = sqrt(pow(AB.latitude,2) + pow(AB.longitude,2));
-        Log.d(TAG, "Radius = " + radius);
-        return radius;
-    }
+
     private MarkerOptions newMarkerMyPosition (LatLng mCurrentPosition)     //set up marker to current position
     {
         return new MarkerOptions()
                 .position(mCurrentPosition)
-                .title("I'm here!")
+                .title(getString(R.string.title_user_here))
                 .icon(BitmapDescriptorFactory
                         .fromBitmap(BitmapFactory
                                 .decodeResource(this.getResources(), R.mipmap.ic_loc)))
@@ -362,7 +359,7 @@ public class MapsActivity extends ActionBarActivity
                  }
                  doubleBackToExitPressedOnce = true;
 
-                 Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+                 Toast.makeText(this, getString(R.string.toast_back_exit), Toast.LENGTH_SHORT).show();
 
                  new Handler().postDelayed(new Runnable() {
 

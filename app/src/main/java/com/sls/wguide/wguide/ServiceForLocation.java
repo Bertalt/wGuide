@@ -17,8 +17,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.concurrent.ExecutorService;
-
 import static com.google.android.gms.location.LocationServices.API;
 import static com.google.android.gms.location.LocationServices.FusedLocationApi;
 
@@ -31,7 +29,6 @@ public class ServiceForLocation extends Service
        // android.location.GpsStatus.Listener
          {
     String LOG_TAG = "myServiceGPS";
-    ExecutorService es;
     iLocationListener LocLis;
     LocationManager lm;
 
@@ -181,10 +178,9 @@ public class ServiceForLocation extends Service
             public void onLocationChanged(Location location) {  //extend in cycle  in order with Interval (n)
             Log.d("POS", "Lat: " + location.getLatitude() + " Lon: " + location.getLongitude());
 
-            Intent intent = new Intent(MapsActivity.BROADCAST_ACTION);
             mCurLoc = new LatLng(location.getLatitude(), location.getLongitude());
 
-            sendBroadcast(intent);
+            sendBroadcast( new Intent(MapsActivity.BROADCAST_ACTION));
         }
     }
 }

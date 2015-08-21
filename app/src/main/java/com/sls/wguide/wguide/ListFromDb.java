@@ -66,7 +66,6 @@ public class ListFromDb extends FragmentActivity implements LoaderCallbacks<Curs
         scAdapter = new ApAdapter(this, R.layout.list_db_item, null, from, to, 0);
         lvData = (ListView) findViewById(R.id.list_view_db);
 
-
             lvData.setAdapter(scAdapter);
 
             registerForContextMenu(lvData);

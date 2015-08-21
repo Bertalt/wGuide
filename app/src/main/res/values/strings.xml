@@ -9,9 +9,14 @@
     <string name="action_update_map">Update map</string>
     <string name="menu_remove">Remove</string>
 
-    <string name="content_open_popup">Open Popup Menu</string>
+    <!-- TOASTs -->
     <string name="toast_empty_database">The database is empty</string>
+    <string name="toast_back_exit"> Please click BACK again to exit</string>
+    <string name="toast_recommend_on_wifi"> You should enable WiFi</string>
+    <string name="toast_recommend_on_search"> You should change mod on Search</string>
 
+    <string name="content_open_popup">Open Popup Menu</string>
+    <string name="title_user_here"> I am here!</string>
     <string name="title_activity_listFromDb">Database</string>
     <string name="delete_record">Delete record</string>
     <string name="add_record">Add record</string>

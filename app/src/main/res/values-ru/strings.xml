@@ -64,4 +64,7 @@
     <string name="headerLevel">Уровень сигнала</string>
     <string name="loading">Загружаю…</string>
     <string name="pref_count_sat_dialog_title">Choose number of satellites</string>
+    <string name="toast_back_exit">Нажмите еще раз что бы выйти</string>
+    <string name="toast_recommend_on_search">Нужно включить режим сканирования</string>
+    <string name="toast_recommend_on_wifi">Нужно включить WiFi модуль</string>
 </resources>

@@ -34,4 +34,7 @@
     <string name="switch_search_mod_on">Режим сканування</string>
     <string name="title_activity_listFromDb">База даних</string>
     <string name="title_count_gps">Кількість супутників</string>
+    <string name="toast_back_exit">Натисніть ще раз для виходу</string>
+    <string name="toast_recommend_on_search">Увімкніть режим сканування</string>
+    <string name="toast_recommend_on_wifi">Увімкніть модуль WiFi</string>
 </resources>
