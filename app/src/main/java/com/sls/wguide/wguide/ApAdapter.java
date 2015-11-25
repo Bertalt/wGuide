@@ -16,10 +16,8 @@ import java.util.ArrayList;
  */
 public class ApAdapter extends SimpleCursorAdapter {
 
-    Context context;
-    ArrayList<AccessPoint> mList;
     int mLayoutInflater;
-    private DB db;
+
 
     public ApAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
         super(context, layout, c, from, to, flags);
@@ -35,11 +33,11 @@ public class ApAdapter extends SimpleCursorAdapter {
     }
     @Override
     public void bindView(View view, Context _context, Cursor _cursor) {
-        int  level = _cursor.getInt(_cursor.getColumnIndex(db.LEVEL));
-        String SSID = _cursor.getString(_cursor.getColumnIndex(db.SSID));
-        String BSSID = _cursor.getString(_cursor.getColumnIndex(db.BSSID));
-        String ENCRYPT= _cursor.getString(_cursor.getColumnIndex(db.ENCRYPT));
-        String WHO_ADD = _cursor.getString(_cursor.getColumnIndex(db.WHO_ADD));
+        int  level = _cursor.getInt(_cursor.getColumnIndex(DB.LEVEL));
+        String SSID = _cursor.getString(_cursor.getColumnIndex(DB.SSID));
+        String BSSID = _cursor.getString(_cursor.getColumnIndex(DB.BSSID));
+        String ENCRYPT= _cursor.getString(_cursor.getColumnIndex(DB.ENCRYPT));
+        String WHO_ADD = _cursor.getString(_cursor.getColumnIndex(DB.WHO_ADD));
 
 
         TextView tvLevel = (TextView) view.findViewById(R.id.tvLevel);
@@ -48,7 +46,7 @@ public class ApAdapter extends SimpleCursorAdapter {
         TextView tvEncrypt= (TextView) view.findViewById(R.id.tvEncrypt);
         TextView tvWho_add = (TextView) view.findViewById(R.id.who_add);
 
-        tvLevel.setText("-"+level+"db");
+        tvLevel.setText(level+"db");
         tvSSID.setText(SSID+"");
         tvBSSID.setText(BSSID+"");
         tvEncrypt.setText(ENCRYPT+"");

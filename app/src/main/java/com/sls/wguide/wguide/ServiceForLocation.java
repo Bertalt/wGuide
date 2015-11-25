@@ -52,8 +52,7 @@ public class ServiceForLocation extends Service
 
 
         lm = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE);
-        //lm.addGpsStatusListener(this);
-  //     es.submit(new statusListener());
+
     }
 
 
@@ -129,8 +128,6 @@ public class ServiceForLocation extends Service
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(5000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);// use GPS
-
-
         }
         else
         {

@@ -3,9 +3,11 @@ package com.sls.wguide.wguide;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -20,6 +22,9 @@ import com.google.maps.android.clustering.ClusterManager;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 /**
  * Created by Sls on 01.06.2015.
  */
@@ -30,15 +35,10 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
     private Context context;
     private GoogleMap mMap;
     private ArrayList<Marker> mMarkerList;
-    private ClusterManager<MyItem> mClusterManager;
     private String TAG = "FillInMap";
-
-    private BroadcastReceiver br;
-    public static final String PARAM_LON = "Longitude";
-    public static final String PARAM_LAT = "Latitude";
-    public final static String BROADCAST_ACTION = "com.nullxweight.servicebackbroadcast";
-    private IntentFilter intFilt;
-    private static LatLng mCurLoc;
+    private double mRadiusInLanLng = 0.00000960865339; // = 1 m
+    private float mAvaRadius;
+    private SharedPreferences sharedPref;
 
 
     public FillInMap (Context context, GoogleMap Map)
@@ -49,15 +49,14 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
         mMap = Map;
         mMarkerList = new ArrayList<>();
         mMap.setOnMarkerDragListener(this);
+        sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
+        mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
 
 
     }
     @Override
     public void run() {
 
-        mCurLoc = ServiceForLocation.mCurLoc;
-        // создаем объект для создания и управления версиями БД
-        // создаем фильтр для BroadcastReceiver
         final Handler handler = new Handler(Looper.getMainLooper());
         db.getAllData();
         int count = 0;
@@ -67,29 +66,29 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
             final int n = i;
             handler.post(new Runnable() {
                 public void run() {
-                    alAccessPoints.get(n).getLevel();
-                    Log.d("Map", "marker = "+alAccessPoints.get(n).getLat()+" lon = "+ alAccessPoints.get(n).getLon());
+                    AccessPoint tmp = alAccessPoints.get(n);
+
+                    Log.d("Map", "marker = "+tmp.getLat()+" lon = "+ tmp.getLon());
                    mMarkerList.add(n, mMap.addMarker(new MarkerOptions()           //добавлеие маркера на карту + в список маркеров
-                           .position(new LatLng(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon()))
-                           .title(alAccessPoints.get(n).getSSID())
+                           .position(new LatLng(tmp.getLat(), tmp.getLon()))
+                           .title(tmp.getSSID())
                            .icon(BitmapDescriptorFactory
                                    .fromBitmap(BitmapFactory
-                                           .decodeResource(context.getResources(), selectWifiMarker(alAccessPoints.get(n).getLevel()
-                                                   , alAccessPoints.get(n).getEncrypt()))))
-                           .snippet("Signal: " + alAccessPoints.get(n).getLevel()              //описание точки по нажатию на маркер
-                                   + "  " + alAccessPoints.get(n).getEncrypt())
-                           .draggable(true)));
+                                           .decodeResource(context.getResources(), selectWifiMarker(tmp.getLevel()
+                                                   , tmp.getEncrypt()))))
+                           .snippet("Signal: " + tmp.getLevel()              //описание точки по нажатию на маркер
+                                   + "  " + tmp.getEncrypt())
+                           .visible((getVector(ServiceForLocation.mCurLoc,
+                                   new LatLng(tmp.getLat(), tmp.getLon()))))
+                                   .draggable(true)));
 
-                   // setUpClusterer();
-                   // MyItem offsetItem = new MyItem(alAccessPoints.get(n).getLat(), alAccessPoints.get(n).getLon());
-                   // mClusterManager.addItem(offsetItem);
+
                 }
             });
             count++;
         }
         Log.d(TAG, "Was load " + count + " WiFi markers");
-        //            Toast.makeText(getApplicationContext(), "Was load "+ count +" WiFi markers", Toast.LENGTH_SHORT).show();
-    }
+         }
 
     private int selectWifiMarker(int signal, String encrypt)
     {
@@ -148,10 +147,24 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
                     new Date().getTime()))
                Toast.makeText(context, tmp.getSSID()+ " location changed "+marker.getPosition().latitude+" "+ marker.getPosition().longitude, Toast.LENGTH_SHORT).show();
 
-            marker.setVisible(db.getVector(ServiceForLocation.mCurLoc,
-                        new LatLng( marker.getPosition().latitude,marker.getPosition().longitude)));
+            marker.setVisible(getVector(ServiceForLocation.mCurLoc,
+                    new LatLng(marker.getPosition().latitude,marker.getPosition().longitude)));
         }
 
+    }
+    public  boolean getVector ( LatLng a ,  LatLng b)
+    {
+        if (a == null)
+            return true;
+        if (b == null)
+            return false;
+
+        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
+        double radius = sqrt(pow(AB.latitude, 2) + pow(AB.longitude, 2));
+        // Log.d(TAG, "Radius = " + radius);
+        if (radius > mRadiusInLanLng*mAvaRadius)
+            return false;
+        return true;
     }
 
     private AccessPoint getApByMarkerId (String id)
@@ -177,21 +190,5 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
         }
     }
 
-    private void setUpClusterer() {
-
-        // Initialize the manager with the context and the map.
-        // (Activity extends context, so we can pass 'this' in the constructor.)
-        mClusterManager = new ClusterManager<MyItem>(context,mMap);
-
-        // Point the map's listeners at the listeners implemented by the cluster
-        // manager.
-        mMap.setOnCameraChangeListener(mClusterManager);
-        mMap.setOnMarkerClickListener(mClusterManager);
-
-
-
-
-        // Add cluster items (markers) to the cluster manager.
-    }
 
 }

@@ -76,6 +76,7 @@ public class MapsActivity extends ActionBarActivity
         setContentView(R.layout.activity_maps);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         serviceWiFi = Executors.newSingleThreadScheduledExecutor();
+        //TODO: перепроектировать myTimer
         myTimer = new Timer();
         mServiceWithTimer = new Thread(new RunServiceWithTimer());
         if(savedInstanceState == null)
@@ -116,6 +117,8 @@ public class MapsActivity extends ActionBarActivity
 
             }
         };
+
+        //TODO: ќтказатьс€ от широковещательных сообщений
         br_update_map = new BroadcastReceiver() {
             // действи€ при получении сообщений
             public void onReceive(Context context, Intent intent) {
@@ -131,9 +134,7 @@ public class MapsActivity extends ActionBarActivity
         handler = new Handler(Looper.getMainLooper());
         lm.addGpsStatusListener(GSL);
 
-            ////// ѕереодическое выполнение сервиса сканировани€ wireless
-
-        // создаем фильтр дл€ BroadcastReceiver
+              // создаем фильтр дл€ BroadcastReceiver
         IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
         // регистрируем (включаем) BroadcastReceiver
         registerReceiver(br, intFilt);
@@ -243,6 +244,7 @@ public class MapsActivity extends ActionBarActivity
         return true;
 
     }
+
     private void setUpMap() {
         mIntent = getIntent();
         double mLat = mIntent.getDoubleExtra("lat", 48.35);
@@ -331,7 +333,7 @@ public class MapsActivity extends ActionBarActivity
     }
 
 
-    private MarkerOptions newMarkerMyPosition (LatLng mCurrentPosition)     //set up marker to current position
+    private MarkerOptions newMarkerMyPosition (LatLng mCurrentPosition)     //set up marker current position
     {
         return new MarkerOptions()
                 .position(mCurrentPosition)
@@ -348,6 +350,10 @@ public class MapsActivity extends ActionBarActivity
 
 
                      boolean doubleBackToExitPressedOnce = false;
+
+             /*
+             ‘ункци€ завершени€ программы при быстром нажатии на back
+              */
              @Override
              public void onBackPressed() {
                  if (doubleBackToExitPressedOnce) {
@@ -371,7 +377,9 @@ public class MapsActivity extends ActionBarActivity
              }
 
              public class RunServiceWithTimer implements Runnable{
-
+                 /*
+                 ѕереодически запускаю сервис сканировани€
+                  */
                  @Override
                  public void run() {
                      {
@@ -399,19 +407,16 @@ public class MapsActivity extends ActionBarActivity
                  public void onGpsStatusChanged(int event) {
                      handler.post(new Runnable() {
                          public void run() {
-
-                             int satellites = 0;
                              int satellitesInFix = 0;
-                             int timetofix = lm.getGpsStatus(null).getTimeToFirstFix();
-                            // Log.i(TAG, "Time to first fix = " + String.valueOf(timetofix)); //врем€ на подключение к достат. кол-ву спутников
+                             int timetofix = lm.getGpsStatus(null).getTimeToFirstFix();//врем€ на подключение к достат. кол-ву спутников
 
                              for (GpsSatellite sat : lm.getGpsStatus(null).getSatellites()) {
                                  if (sat.usedInFix()) {
-                                     satellitesInFix++;     //подсчет кол-ва спутников, которые учавствуют в
+                                     satellitesInFix++;     //подсчет кол-ва спутников, которые доступны
                                  }
-                                 satellites++;
+
                              }
-                           //  Log.i(TAG, String.valueOf(satellites) + " Used In Last Fix (" + satellitesInFix + ")");
+
 
                              if (satellitesInFix < Integer.parseInt(sharedPref.getString(SettingsActivity.KEY_PREF_GPS_COUNT_SAT, "6")))
                                  mTvStatCount.setTextColor(Color.RED);

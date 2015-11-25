@@ -12,6 +12,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -40,10 +41,6 @@ public class DB {
     public static final String TIME = "time";
     public static final String AMOUNT_SAT = "amount_sat";
     public static final String BROADCAST_UPDATE_DB = "com.sls.wguide.updated_db";
-    private float mAvaRadius;
-    private double mRadiusInLanLng = 0.00000960865339; // = 1 m
-    private static LatLng mCurLoc;
-    private SharedPreferences sharedPref;
 
     private final String TAG = "database";
 
@@ -91,8 +88,7 @@ public class DB {
         mDBHelper = new DBHelper(mCtx, DB_NAME, null, DB_VERSION);
 
         mDB = mDBHelper.getWritableDatabase();
-        sharedPref = PreferenceManager.getDefaultSharedPreferences(mCtx);
-        mAvaRadius = Float.parseFloat(sharedPref.getString(SettingsActivity.KEY_PREF_MAP_AVA_RADIUS, "1000"));
+
 
     }
 
@@ -109,38 +105,7 @@ public class DB {
         Cursor c;
         open();
         mApList = new ArrayList<AccessPoint>();
-        /*
-        float Rin2 = (float)pow((mRadiusInLanLng*mAvaRadius),2);
 
-        String x1 ="(("+LATITUDE+ "-?)*"+
-                   "("+LATITUDE+ "-?)";
-        String x2 ="("+LONGITUDE+"-?)*"+
-                   "("+LONGITUDE+"-?))";
-        selection = x1+ "+" +x2 +" <= ?" ;
-
-        try {
-        String[] selectionArgs = {
-                decimalFormat.format(ServiceForLocation.mCurLoc.latitude),
-                decimalFormat.format(ServiceForLocation.mCurLoc.latitude),
-                decimalFormat.format(ServiceForLocation.mCurLoc.longitude),
-                decimalFormat.format(ServiceForLocation.mCurLoc.longitude),
-                decimalFormat.format(Rin2)};
-
-
-            double X1 = pow(ServiceForLocation.mCurLoc.latitude - 48.4604353, 2);
-            double X2 = pow(ServiceForLocation.mCurLoc.longitude - 35.00582, 2);
-                    Log.d("math",
-                            decimalFormat.format(X1) + " + " +  decimalFormat.format(X2) +" = " + decimalFormat.format(X1+X2)
-                            +" & "+ decimalFormat.format(Rin2)
-
-            );
-          //  Log.d("math", pow(ServiceForLocation.mCurLoc.latitude - 48.))
-        c = mDB.query(TABLE_NAME, null,selection,selectionArgs, null, null, null);
-        }
-        catch (NullPointerException ex)
-        {
-            ex.printStackTrace();
-            */
            c = mDB.query(TABLE_NAME, null, null, null, null, null, null);
        // }
         if (c.moveToFirst()) {
@@ -158,16 +123,6 @@ public class DB {
             int timeColIndex = c.getColumnIndex(TIME);
 
             do {
-
-                /*
-                if(ServiceForLocation.mCurLoc != null)
-                    if(!getVector(ServiceForLocation.mCurLoc, new LatLng(c.getDouble(latColIndex),c.getDouble(lonColIndex)))) {
-                        Log.d("rad",  c.getString(ssidColIndex) +" out of radius");
-                        {
-                            continue;
-                        }
-                    }
-    */
 
                 // получаем значения по номерам столбцов в отдельный объект
                 AccessPoint mAp = new AccessPoint();
@@ -198,15 +153,6 @@ public class DB {
         Log.d("curs1", String.valueOf(c.getCount()));
         return c;
     }
-
-    public AccessPoint findApById(long id)
-{
-    for (int i=0; i<mApList.size(); i++)
-        if (mApList.get(i).getID() == id)
-            return mApList.get(i);
-
-    return null;
-}
 
     public AccessPoint getByBssid(String bssid)
     {
@@ -274,7 +220,7 @@ public class DB {
      Log.d(TAG, ssid + " was added");
      mDB.insert(TABLE_NAME, null, cv);
 close();
-   //  sendBroadcaset_update();
+
      return true;
  }
  catch (NullPointerException NPE)
@@ -292,11 +238,10 @@ close();
         close();
     }
 
-    private void sendBroadcaset_update()
-    {
-        Intent intent = new Intent(BROADCAST_UPDATE_DB);
-        mCtx.sendBroadcast(intent);
-    }
+
+
+
+
     // класс по созданию и управлению БД
     private class DBHelper extends SQLiteOpenHelper {
 
@@ -316,21 +261,5 @@ close();
             db.execSQL(ALTER_TABLE);
         }
     }
-    public  boolean getVector ( LatLng a ,  LatLng b)
-    {
-        if (a == null)
-            return true;
-        if (b == null)
-            return false;
 
-        LatLng AB = new LatLng(b.latitude - a.latitude, b.longitude - a.longitude);
-        double radius = sqrt(pow(AB.latitude,2) + pow(AB.longitude,2));
-       // Log.d(TAG, "Radius = " + radius);
-        if (radius > mRadiusInLanLng*mAvaRadius)
-            return false;
-
-
-
-        return true;
-    }
 }
