@@ -106,6 +106,7 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
 
             return R.mipmap.ic_wifi_launcher;
         }
+
         else
             if (signal >= m4l)
             return R.mipmap.ic_wifi_launcher_lock;
@@ -116,7 +117,8 @@ public class FillInMap extends Thread implements Runnable, GoogleMap.OnMarkerDra
         else if (signal >=m4l-30)
             return R.mipmap.ic_wifi_launcher_bottom_lock;
 
-        return R.mipmap.ic_wifi_launcher_lock;
+        return R.mipmap.ic_wifi_launcher;
+
     }
 
 

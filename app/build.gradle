@@ -3,14 +3,14 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         wguide {
-            keyAlias 'wguide'
-            keyPassword '6991slavon'
-            storeFile file('C:/Users/Sls/.android/wguide.keystore')
-            storePassword '322849'
+            keyAlias 'Bertalt'
+            keyPassword '322849'
+            storeFile file('C:/Users/Serg/AndroidStudioProjects/wGuide/keystore/mgk.jks')
+            storePassword '2311guide'
         }
     }
-    compileSdkVersion 22
-    buildToolsVersion "23.0.0 rc2"
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
     compileOptions.encoding = 'windows-1251'
     defaultConfig {
         applicationId "com.sls.wguide.wguide"
@@ -32,7 +32,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.google.android.gms:play-services:7.5.0'
     compile 'com.google.maps.android:android-maps-utils:0.3+'
